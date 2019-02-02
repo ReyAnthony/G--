@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Interpreter1
 {
     internal class Add : InterpreterFunc
@@ -40,7 +42,7 @@ namespace Interpreter1
     {
         public override Value Execute()
         {
-            int divd = 0;
+            float divd = 0;
             for (var i = 0; i < Arguments.Count; i++)
             {
                 var arg = int.Parse(Arguments[i].Val);
@@ -54,7 +56,7 @@ namespace Interpreter1
                 }
             }
 
-            return new Value(divd.ToString(), Types.Int);
+            return new Value(divd.ToString(CultureInfo.InvariantCulture), Types.FloatingPoint);
         }
     }
 

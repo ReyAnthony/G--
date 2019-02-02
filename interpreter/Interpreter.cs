@@ -24,6 +24,7 @@ namespace Interpreter1
     public enum Types
     {
         Int,
+        FloatingPoint,
         Name,
         String,
         EmptyList
