@@ -7,6 +7,27 @@ Trying to craft an interpreter using s-exp but with a C-like way of things (aka,
   (print "This is a test program") 
   (print "%% is for declaring a statement group (similar to a progn)")
   (print (+ 41 1 ))) 
+  
+OR 
+
+(%%  
+    (def a (read) 
+        (%%  
+            (when (eq (ret a) 12) (print "a"))  
+            (when (not (eq (ret a) 12)) (print "b")))))
+13
+b
+"b"
+
+(%%  
+    (def a (read)
+        (%% 
+            (when (eq (ret a) 12) (print "a"))  
+            (when (not (eq (ret a) 12)) (print "b"))))
+     (print "This works :)")
+12 
+()
+  
 ```  
 # In the REPL you can declare anything
 

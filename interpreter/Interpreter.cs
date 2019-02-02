@@ -53,6 +53,21 @@ namespace Interpreter1
         }
     }
 
+    public class LazyValue
+    {
+        private Func<Value> _lazy;
+
+        public LazyValue(Func<Value> val)
+        {
+            _lazy = val;
+        }
+
+        public Value Execute()
+        {
+            return _lazy.Invoke();
+        }
+    }
+
     public enum Types
     {
         Int,
@@ -64,13 +79,13 @@ namespace Interpreter1
 
     public abstract class InterpreterFunc
     {
-        protected readonly List<Value> Arguments = new List<Value>();
+        protected readonly List<LazyValue> Arguments = new List<LazyValue>();
         private readonly Dictionary<string, Value> _context = new Dictionary<string, Value>();
         private InterpreterFunc _parent;
         
         public abstract Value Execute();
 
-        public void AddArgument(Value arg)
+        public void AddArgument(LazyValue arg)
         {
             Arguments.Add(arg);
         }
@@ -81,20 +96,19 @@ namespace Interpreter1
         }
 
         public Value RetrieveValueFromContext(string name)
-        {
-            if (_parent == null)
-            {
-                throw new UndefinedVariable(name);
-            }
-            
+        {  
             try
             {
                 return _context[name];
             }
-            catch (Exception ex)
+            catch (KeyNotFoundException ex)
             {
+                if (_parent == null)
+                {
+                    throw new UndefinedVariable(name);
+                }
                 return _parent.RetrieveValueFromContext(name);
-            }
+            }          
         }
         
         public void AddValueToLocalContext(string name, Value val)
@@ -132,16 +146,16 @@ namespace Interpreter1
 
         public void ExitExpr(ExprParser.ExprContext context)
         {
-            var popdResult = _callStack.Pop().Execute();
+            var lastExpr = _callStack.Pop();
            
             if (_callStack.Count > 0)
             {
                 var stackTop = _callStack.Peek();
-                stackTop.AddArgument(new Value(popdResult.Val, popdResult.Type));
+                stackTop.AddArgument(new LazyValue(() => lastExpr.Execute()));
             }
             else
             {
-                Console.WriteLine(popdResult.Val);
+                Console.WriteLine(lastExpr.Execute().Val);
             } 
         }
 
@@ -151,23 +165,23 @@ namespace Interpreter1
             
             if (context.INT() != null)
             {
-                func.AddArgument(new Value(context.INT().GetText(), Types.Int));
+                func.AddArgument(new LazyValue(() => new Value(context.INT().GetText(), Types.Int)));
             }
             else if (context.FLOATING() != null)
             {
-                func.AddArgument(new Value(context.FLOATING().GetText(), Types.FloatingPoint));
+                func.AddArgument(new LazyValue(() => new Value(context.FLOATING().GetText(), Types.FloatingPoint)));
             }
             else if (context.STRING() != null)
             {
-                func.AddArgument(new Value(context.STRING().GetText(), Types.String));
+                func.AddArgument(new LazyValue(() => new Value(context.STRING().GetText(), Types.String)));
             }
             else if (context.NAME() != null)
             {
-                func.AddArgument(new Value(context.NAME().GetText(), Types.Name));
+                func.AddArgument(new LazyValue(() => new Value(context.NAME().GetText(), Types.Name)));
             }
             else if (context.EMPTY_LIST() != null)
             {
-                func.AddArgument(new Value(context.EMPTY_LIST().GetText(), Types.EmptyList));
+                func.AddArgument(new LazyValue(() => new Value(context.EMPTY_LIST().GetText(), Types.EmptyList)));
             }
                 
             //if it's a function, then we do nothing,

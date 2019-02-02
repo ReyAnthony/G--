@@ -3,29 +3,31 @@ using System.Globalization;
 using System.Linq;
 
 namespace Interpreter1
-{  
+{
     internal class Add : InterpreterFunc
     {
         public override Value Execute()
         {
             float added = 0;
             Types returnType = Types.Int;
-            Arguments.ForEach(a =>
+            Arguments.ForEach(lazy =>
             {
+                var a = lazy.Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
-                    added += float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
+                    added += float.Parse(a.Val, CultureInfo.InvariantCulture);
                     returnType = Types.FloatingPoint;
                 }
                 else
                 {
-                    added += int.Parse(a.Val.ToString());
+                    added += int.Parse(a.Val);
                 }
             });
-            
+
             return new Value(added.ToString(CultureInfo.InvariantCulture), returnType);
         }
     }
+
 
     internal class Sub : InterpreterFunc
     {
@@ -35,11 +37,11 @@ namespace Interpreter1
             Types returnType = Types.Int;
             for (var i = 0; i < Arguments.Count; i++)
             {
-                var a = Arguments[i];
+                var a = Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
                     var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
-                    if (i == 0)              
+                    if (i == 0)
                         subbed = val;
                     else
                         subbed -= val;
@@ -53,9 +55,8 @@ namespace Interpreter1
                     else
                         subbed -= val;
                 }
-                
             }
-            
+
             return new Value(subbed.ToString(CultureInfo.InvariantCulture), returnType);
         }
     }
@@ -68,11 +69,11 @@ namespace Interpreter1
             Types returnType = Types.FloatingPoint;
             for (var i = 0; i < Arguments.Count; i++)
             {
-                var a = Arguments[i];
+                var a = Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
                     var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
-                    if (i == 0)              
+                    if (i == 0)
                         divd = val;
                     else
                         divd /= val;
@@ -86,7 +87,7 @@ namespace Interpreter1
                         divd /= val;
                 }
             }
-           
+
             return new Value(divd.ToString(CultureInfo.InvariantCulture), returnType);
         }
     }
@@ -99,11 +100,11 @@ namespace Interpreter1
             Types returnType = Types.FloatingPoint;
             for (var i = 0; i < Arguments.Count; i++)
             {
-                var a = Arguments[i];
+                var a = Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
                     var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
-                    if (i == 0)              
+                    if (i == 0)
                         mult = val;
                     else
                         mult *= val;
@@ -117,22 +118,23 @@ namespace Interpreter1
                         mult *= val;
                 }
             }
-           
+
             return new Value(mult.ToString(CultureInfo.InvariantCulture), returnType);
         }
     }
-    
+
     internal class StatementsGroup : InterpreterFunc
     {
         public override Value Execute()
         {
             if (Arguments.Count == 0)
                 throw new WrongArgumentCount("$$", 1);
-            
-           return Arguments.Last();
+
+            Arguments.GetRange(0, Arguments.Count - 1).ForEach((a) => a.Execute());
+            return Arguments.Last().Execute();
         }
     }
-    
+
     internal class Print : InterpreterFunc
     {
         public override Value Execute()
@@ -140,58 +142,61 @@ namespace Interpreter1
             if (Arguments.Count != 1)
                 throw new WrongArgumentCount("print", 1, 1);
 
-            foreach (var argument in Arguments)
+            foreach (var lazy in Arguments)
             {
+                var argument = lazy.Execute();
                 if (argument.Type != Types.String && argument.Type != Types.Int && argument.Type != Types.FloatingPoint)
                 {
                     throw new WrongType("print", "", Types.String, Types.Int, Types.FloatingPoint);
                 }
             }
-            
-            Console.WriteLine(Arguments.First().Val.Replace("\"", string.Empty));
-            return Arguments.First();
+
+            var arg1 = Arguments.First().Execute();
+
+            Console.WriteLine(arg1.Val.Replace("\"", string.Empty));
+            return arg1;
         }
     }
-    
+
     internal class Read : InterpreterFunc
     {
         public override Value Execute()
         {
             if (Arguments.Count != 0)
                 throw new WrongArgumentCount("read", 0, 0);
-            
+
             Console.ReadLine();
             var read = Console.ReadLine();
             return new Value(read, Types.String);
         }
     }
-    
+
     internal class TypeOf : InterpreterFunc
     {
         public override Value Execute()
         {
             if (Arguments.Count != 1)
                 throw new WrongArgumentCount("typeof", 1, 1);
-            
-            return new Value(Arguments.First().Type.ToString(), Types.String);
+
+            return new Value(Arguments.First().Execute().Type.ToString(), Types.String);
         }
     }
-    
+
     internal class Eq : InterpreterFunc
-     {
-         public override Value Execute()
-         {
-             if (Arguments.Count != 2)
-                 throw new WrongArgumentCount("eq", 2, 2);
- 
-             if (Arguments.First().Val.Equals(Arguments.Last().Val))
-             {
-                 return new Value("t", Types.Name);
-             }
-             return new Value("()", Types.EmptyList);
-         }
-     }
-    
+    {
+        public override Value Execute()
+        {
+            if (Arguments.Count != 2)
+                throw new WrongArgumentCount("eq", 2, 2);
+
+            if (Arguments.First().Execute().Val.Equals(Arguments.Last().Execute().Val))
+            {
+                return new Value("t", Types.Name);
+            }
+            return new Value("()", Types.EmptyList);
+        }
+    }
+
     internal class Not : InterpreterFunc
     {
         public override Value Execute()
@@ -199,60 +204,58 @@ namespace Interpreter1
             if (Arguments.Count != 1)
                 throw new WrongArgumentCount("not", 1, 1);
 
-            if (Arguments.First().Type == Types.EmptyList)
+            if (Arguments.First().Execute().Type == Types.EmptyList)
             {
                 return new Value("t", Types.Name);
             }
             return new Value("()", Types.EmptyList);
         }
     }
-    
-    //Is working weird with functions that have side effects like print ..
-    //That's because we evaluate everything before, when should be a specific syntatic construct..
+
     internal class When : InterpreterFunc
     {
         public override Value Execute()
         {
             if (Arguments.Count != 2)
                 throw new WrongArgumentCount("when", 2, 2);
-            
-            if (Arguments.First().Type != Types.EmptyList)
+
+            if (Arguments.First().Execute().Type != Types.EmptyList)
             {
-                return Arguments.Last();
+                return Arguments.Last().Execute();
             }
             else
             {
                 return new Value("()", Types.EmptyList);
-            }  
+            }
         }
     }
-    
+
     internal class Def : InterpreterFunc
     {
         public override Value Execute()
         {
             if (Arguments.Count != 3)
                 throw new WrongArgumentCount("def", 3, 3);
-            
-            if (Arguments.First().Type != Types.Name)
+
+            if (Arguments.First().Execute().Type != Types.Name)
                 throw new WrongType("def", "first argument should be a Name", Types.Name);
-            
-            AddValueToLocalContext(Arguments.First().Val, Arguments[1]);
-            return Arguments.Last();
+
+            AddValueToLocalContext(Arguments.First().Execute().Val, Arguments[1].Execute());
+            return Arguments.Last().Execute();
         }
     }
-    
+
     internal class Retrieve : InterpreterFunc
     {
         public override Value Execute()
         {
             if (Arguments.Count != 1)
                 throw new WrongArgumentCount("ret", 1, 1);
-            
-            if (Arguments.First().Type != Types.Name)
+
+            if (Arguments.First().Execute().Type != Types.Name)
                 throw new WrongType("ret", "first argument should be a Name", Types.Name);
 
-            return RetrieveValueFromContext(Arguments.First().Val);
+            return RetrieveValueFromContext(Arguments.First().Execute().Val);
         }
     }
 }
