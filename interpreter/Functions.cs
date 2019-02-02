@@ -146,7 +146,7 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count == 0)
-                throw new WrongArgumentCount("$$", 1);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 1);
 
             ExprContext.Arguments.GetRange(0, ExprContext.Arguments.Count - 1).ForEach((a) => a.Execute());
             return ExprContext.Arguments.Last().Execute();
@@ -162,7 +162,7 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count < 1)
-                throw new WrongArgumentCount("print", 1);
+                throw new WrongArgumentCount("ExprContext.FunctionName", 1);
 
             var fullStr = "";
             Value last = null;
@@ -171,7 +171,7 @@ namespace Interpreter1
                 var argument = lazy.Execute();
                 if (argument.Type != Types.String && argument.Type != Types.Int && argument.Type != Types.FloatingPoint)
                 {
-                    throw new WrongType("print", "", Types.String, Types.Int, Types.FloatingPoint);
+                    throw new WrongType(ExprContext.FunctionName, "", Types.String, Types.Int, Types.FloatingPoint);
                 }
                 fullStr += argument.Val;
                 last = argument;
@@ -191,10 +191,14 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 0)
-                throw new WrongArgumentCount("read", 0, 0);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 0, 0);
 
-            Console.ReadLine();
             var read = Console.ReadLine();
+            // HACK pseudo flush for repl
+            if (read == string.Empty)
+            {
+                read = Console.ReadLine();
+            }
             return new Value(read, Types.String);
         }
     }
@@ -208,7 +212,7 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 1)
-                throw new WrongArgumentCount("typeof", 1, 1);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 1, 1);
 
             return new Value(ExprContext.Arguments.First().Execute().Type.ToString(), Types.String);
         }
@@ -223,7 +227,7 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 2)
-                throw new WrongArgumentCount("eq", 2, 2);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 2, 2);
 
             if (ExprContext.Arguments.First().Execute().Val.Equals(ExprContext.Arguments.Last().Execute().Val))
             {
@@ -242,7 +246,7 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 1)
-                throw new WrongArgumentCount("not", 1, 1);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 1, 1);
 
             if (ExprContext.Arguments.First().Execute().Type == Types.EmptyList)
             {
@@ -261,7 +265,7 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 2)
-                throw new WrongArgumentCount("when", 2, 2);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 2, 2);
 
             if (ExprContext.Arguments.First().Execute().Type != Types.EmptyList)
             {
@@ -302,10 +306,10 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 3)
-                throw new WrongArgumentCount("def", 3, 3);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 3, 3);
 
             if (ExprContext.Arguments.First().Execute().Type != Types.Name)
-                throw new WrongType("def", "first argument should be a Name", Types.Name);
+                throw new WrongType(ExprContext.FunctionName, "first argument should be a Name", Types.Name);
 
             ExprContext
                 .AddValueToLocalContext(
@@ -325,12 +329,13 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 1)
-                throw new WrongArgumentCount("ret", 1, 1);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 1, 1);
 
-            if (ExprContext.Arguments.First().Execute().Type != Types.Name)
-                throw new WrongType("ret", "first argument should be a Name", Types.Name);
+            var value = ExprContext.Arguments.First().Execute();
+            if (value.Type != Types.Name)
+                throw new WrongType(ExprContext.FunctionName, " argument should be a Name", Types.Name);
 
-            return ExprContext.RetrieveValueFromContext(ExprContext.Arguments.First().Execute().Val);
+            return ExprContext.RetrieveValueFromContext(value.Val);
         }
     }
 
@@ -344,15 +349,15 @@ namespace Interpreter1
         public override Value Execute()
         {
             if (ExprContext.Arguments.Count != 2)
-                throw new WrongArgumentCount("functon", 2);
+                throw new WrongArgumentCount(ExprContext.FunctionName, 2, 2);
 
             var funcName = ExprContext.Arguments.First().Execute();
             if (funcName.Type != Types.Name)
-                throw new WrongType("function", "first argument should be a Name", Types.Name);
+                throw new WrongType(ExprContext.FunctionName, "first argument should be a Name", Types.Name);
             
             ExprContext.AddFunctionToLocalContext(
                 funcName.Val, 
-                () => new CustomFunc(new ExprContext(funcName.Val, ExprContext), ExprContext.Arguments.Last(), funcName.Val));
+                () => new CustomFunc(new ExprContext(funcName.Val, ExprContext), ExprContext.Arguments.Last()));
             
             return new Value("t", Types.Name);
         }
@@ -364,12 +369,12 @@ namespace Interpreter1
         private readonly string[] _names;
         private readonly string _functionName;
 
-        public CustomFunc(ExprContext exprContext, LazyValue codeBody, string functionName, params string[] names) 
+        public CustomFunc(ExprContext exprContext, LazyValue codeBody, params string[] names) 
             : base(exprContext)
         {
             _codeBody = codeBody;
             _names = names;
-            _functionName = functionName;
+            _functionName = ExprContext.FunctionName;
         }
         
         public override Value Execute()
@@ -377,12 +382,14 @@ namespace Interpreter1
             if (ExprContext.Arguments.Count != _names.Length)
                 throw new WrongArgumentCount(_functionName, _names.Length);
             
+            /*
             for (var i = 0; i < ExprContext.Arguments.Count; i++)
             {
                 var lazy = ExprContext.Arguments[i];
                 var val = lazy.Execute();
                 ExprContext.AddValueToLocalContext(_names[i], val);
             }
+            */
 
             return _codeBody.Execute();
         }

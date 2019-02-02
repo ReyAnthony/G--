@@ -83,6 +83,10 @@ namespace Interpreter1
         
         public void AddValueToLocalContext(string name, Value val)
         {
+            // FIXME, we should be functional, but when recursing it replaces the same 
+            // TODO look why
+            if (LocalVariables.ContainsKey(name))
+                LocalVariables.Remove(name);
             LocalVariables.Add(name, val);
         }
         
@@ -181,7 +185,7 @@ namespace Interpreter1
                         var func = Functions[lastExprContext.FunctionName](lastExprContext);
                         return func.Execute();
                     }
-                    catch (Exception e)
+                    catch (KeyNotFoundException e)
                     {
                         var func = lastExprContext.RetrieveFunctionFromLocalContext(lastExprContext.FunctionName)();
                         return func.Execute();

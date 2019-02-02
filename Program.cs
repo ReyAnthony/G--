@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.InteropServices;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 
@@ -9,7 +11,26 @@ namespace Interpreter1
     {
         public static void Main(string[] args)
         {
-
+            if (args.Length > 0 && File.Exists(args[0]))
+            {
+                try
+                {
+                    var text = File.ReadAllText(args[0]);
+                    var stream = CharStreams.fromstring(text);
+                    var lexer = new ExprLexer(stream);
+                    var tokens = new CommonTokenStream(lexer);
+                    var parser = new ExprParser(tokens) {BuildParseTree = true};
+                    IParseTree tree = parser.prog();
+                    ParseTreeWalker.Default.Walk(new Listener(), tree); 
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+             
+                return;
+            }
+            
             string line;
             while ((line = Console.ReadLine()) != null)
             {
