@@ -1,5 +1,14 @@
-# Pseudo-lisp-interpreter
-Trying to craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not s-exp)
+# Pseudo LISP-like interpreter
+Trying to craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
+
+Features : 
+- Lexically scoped functions and variables 
+- Recursion 
+- Print to repl
+- Read repl 
+- Boolean logic
+- Control flow
+- Type predicates
 
 # Sample program (Won't work as-is in the REPL, as it reads line by line for now)
 ```
