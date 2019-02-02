@@ -50,8 +50,7 @@
     <Compile Include="antlr\ExprListener.cs" />
     <Compile Include="antlr\ExprParser.cs" />
     <Compile Include="interpreter\Interpreter.cs" />
-    <Compile Include="interpreter\Math.cs" />
-    <Compile Include="interpreter\Sys.cs" />
+    <Compile Include="interpreter\Functions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

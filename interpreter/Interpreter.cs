@@ -1,5 +1,7 @@
  using System;
  using System.Collections.Generic;
+ using System.Linq;
+ using System.Net.Configuration;
  using Antlr4.Runtime;
  using Antlr4.Runtime.Tree;
 
@@ -7,6 +9,36 @@ namespace Interpreter1
 {
     internal class UndefinedFunction : Exception
     {
+        public UndefinedFunction(string name) : base($"The function {name} is undefined.")
+        {
+            
+        }
+    }
+    
+    internal class UndefinedVariable : Exception
+    {
+        public UndefinedVariable(string name) : base($"The variable {name} is undefined.")
+        {
+            
+        }
+    }
+    
+    internal class WrongArgumentCount : Exception
+    {
+        public WrongArgumentCount(string funcName, int minArgs, int maxArgs = Int32.MaxValue) 
+            : base($"{funcName} must have at least {minArgs} argument(s) and at most {maxArgs} argument(s)")
+        {
+        }
+    }
+    
+    internal class WrongType : Exception
+    {
+        public WrongType(string funcName, string msg = "", params Types[] excpectedTypes) 
+            : base($"{funcName} needs " +
+                   $"{excpectedTypes.Aggregate("", (str, next) => $"{str}{next}, ").TrimEnd(',', ' ')} types " +
+                   $"{msg}")
+        {
+        }
     }
 
     public class Value
@@ -33,11 +65,41 @@ namespace Interpreter1
     public abstract class InterpreterFunc
     {
         protected readonly List<Value> Arguments = new List<Value>();
+        private readonly Dictionary<string, Value> _context = new Dictionary<string, Value>();
+        private InterpreterFunc _parent;
+        
         public abstract Value Execute();
 
         public void AddArgument(Value arg)
         {
             Arguments.Add(arg);
+        }
+
+        public void SetParent(InterpreterFunc parent)
+        {
+            _parent = parent;
+        }
+
+        public Value RetrieveValueFromContext(string name)
+        {
+            if (_parent == null)
+            {
+                throw new UndefinedVariable(name);
+            }
+            
+            try
+            {
+                return _context[name];
+            }
+            catch (Exception ex)
+            {
+                return _parent.RetrieveValueFromContext(name);
+            }
+        }
+        
+        public void AddValueToLocalContext(string name, Value val)
+        {
+            _context.Add(name, val);
         }
     }
     
@@ -58,33 +120,13 @@ namespace Interpreter1
             try
             {
                 var func = _functions[funcName]();
-                foreach (var argsContext in context.args())
-                {
-                    if (argsContext.INT() != null)
-                    {
-                        func.AddArgument(new Value(argsContext.INT().GetText(), Types.Int));
-                    }
-                    else if (argsContext.STRING() != null)
-                    {
-                        func.AddArgument(new Value(argsContext.STRING().GetText(), Types.String));
-                    }
-                    else if (argsContext.NAME() != null)
-                    {
-                        func.AddArgument(new Value(argsContext.NAME().GetText(), Types.Name));
-                    }
-                    else if (argsContext.EMPTY_LIST() != null)
-                    {
-                        func.AddArgument(new Value(argsContext.EMPTY_LIST().GetText(), Types.EmptyList));
-                    }
-                    
-                    //if it's a function, then we do nothing,
-                    //we wil rewind the call stack and manage it at that moment
-                }
+                if (_callStack.Count > 0)
+                    func.SetParent(_callStack.Peek());
                 _callStack.Push(func);
             }
             catch (KeyNotFoundException ex)
             {
-                Console.WriteLine("Undefined function " + funcName);
+                throw new UndefinedFunction(funcName);
             }
         }
 
@@ -105,7 +147,31 @@ namespace Interpreter1
 
         public void EnterArgs(ExprParser.ArgsContext context)
         {
+            var func = _callStack.Peek();
             
+            if (context.INT() != null)
+            {
+                func.AddArgument(new Value(context.INT().GetText(), Types.Int));
+            }
+            else if (context.FLOATING() != null)
+            {
+                func.AddArgument(new Value(context.FLOATING().GetText(), Types.FloatingPoint));
+            }
+            else if (context.STRING() != null)
+            {
+                func.AddArgument(new Value(context.STRING().GetText(), Types.String));
+            }
+            else if (context.NAME() != null)
+            {
+                func.AddArgument(new Value(context.NAME().GetText(), Types.Name));
+            }
+            else if (context.EMPTY_LIST() != null)
+            {
+                func.AddArgument(new Value(context.EMPTY_LIST().GetText(), Types.EmptyList));
+            }
+                
+            //if it's a function, then we do nothing,
+            //we wil rewind the call stack and manage it at that moment
         }
 
         public void ExitArgs(ExprParser.ArgsContext context)
@@ -120,7 +186,7 @@ namespace Interpreter1
 
         public void VisitErrorNode(IErrorNode node)
         {
-          
+
         }
 
         public void EnterEveryRule(ParserRuleContext ctx)

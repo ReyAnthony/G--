@@ -14,9 +14,18 @@ namespace Interpreter1
             functions.Add("-", () => new Sub());
             functions.Add("/", () => new Div());
             functions.Add("*", () => new Mult());
+            functions.Add("typeof", () => new TypeOf());
+            functions.Add("eq", () => new Eq());
+            functions.Add("not", () => new Not());
+            functions.Add("when", () => new When());
+            functions.Add("def", () => new Def());
+            functions.Add("ret", () => new Retrieve());
             
             functions.Add("%%", () => new StatementsGroup());
+            
+            //side effects
             functions.Add("print", () => new Print());
+            functions.Add("read", () => new Read());
             
             string line;
             while ((line = Console.ReadLine()) != null)
@@ -32,7 +41,7 @@ namespace Interpreter1
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("You tried to do something weird don't you ?");
+                    Console.WriteLine(ex.Message);
                 }
                 Console.ReadLine();
             }
