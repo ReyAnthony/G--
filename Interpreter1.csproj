@@ -49,6 +49,7 @@
     <Compile Include="antlr\ExprLexer.cs" />
     <Compile Include="antlr\ExprListener.cs" />
     <Compile Include="antlr\ExprParser.cs" />
+    <Compile Include="interpreter\Exceptions.cs" />
     <Compile Include="interpreter\Interpreter.cs" />
     <Compile Include="interpreter\Functions.cs" />
     <Compile Include="Program.cs" />

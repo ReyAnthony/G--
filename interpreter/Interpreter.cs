@@ -7,40 +7,6 @@
 
 namespace Interpreter1
 {
-    internal class UndefinedFunction : Exception
-    {
-        public UndefinedFunction(string name) : base($"The function {name} is undefined.")
-        {
-            
-        }
-    }
-    
-    internal class UndefinedVariable : Exception
-    {
-        public UndefinedVariable(string name) : base($"The variable {name} is undefined.")
-        {
-            
-        }
-    }
-    
-    internal class WrongArgumentCount : Exception
-    {
-        public WrongArgumentCount(string funcName, int minArgs, int maxArgs = Int32.MaxValue) 
-            : base($"{funcName} must have at least {minArgs} argument(s) and at most {maxArgs} argument(s)")
-        {
-        }
-    }
-    
-    internal class WrongType : Exception
-    {
-        public WrongType(string funcName, string msg = "", params Types[] excpectedTypes) 
-            : base($"{funcName} needs " +
-                   $"{excpectedTypes.Aggregate("", (str, next) => $"{str}{next}, ").TrimEnd(',', ' ')} types " +
-                   $"{msg}")
-        {
-        }
-    }
-
     public class Value
     {
         public string Val { get; }
@@ -77,85 +43,157 @@ namespace Interpreter1
         EmptyList
     }
 
-    public abstract class InterpreterFunc
+    public class ExprContext
     {
-        protected readonly List<LazyValue> Arguments = new List<LazyValue>();
-        private readonly Dictionary<string, Value> _context = new Dictionary<string, Value>();
-        private InterpreterFunc _parent;
-        
-        public abstract Value Execute();
+        public string FunctionName { get; }
+        public List<LazyValue> Arguments { get; }
+        private Dictionary<string, Func<InterpreterFunc>> LocalFunctions { get; }
+        private Dictionary<string, Value> LocalVariables { get; }
+        private ExprContext Parent { get; }
 
+        public ExprContext(string functionName, ExprContext parent)
+        {
+            this.FunctionName = functionName;
+            Parent = parent;
+            LocalFunctions = new Dictionary<string, Func<InterpreterFunc>>();
+            LocalVariables = new Dictionary<string, Value>();
+            Arguments = new List<LazyValue>();
+        }
+        
         public void AddArgument(LazyValue arg)
         {
             Arguments.Add(arg);
-        }
-
-        public void SetParent(InterpreterFunc parent)
-        {
-            _parent = parent;
         }
 
         public Value RetrieveValueFromContext(string name)
         {  
             try
             {
-                return _context[name];
+                return LocalVariables[name];
             }
             catch (KeyNotFoundException ex)
             {
-                if (_parent == null)
+                if (Parent == null)
                 {
                     throw new UndefinedVariable(name);
                 }
-                return _parent.RetrieveValueFromContext(name);
+                return Parent.RetrieveValueFromContext(name);
             }          
         }
         
         public void AddValueToLocalContext(string name, Value val)
         {
-            _context.Add(name, val);
+            LocalVariables.Add(name, val);
+        }
+        
+        public Func<InterpreterFunc> RetrieveFunctionFromLocalContext(string name)
+        {  
+            try
+            {
+                return LocalFunctions[name];
+            }
+            catch (KeyNotFoundException ex)
+            {
+                if (Parent == null)
+                {
+                    throw new UndefinedFunction(name);
+                }
+                return Parent.RetrieveFunctionFromLocalContext(name);
+            }          
+        }
+        
+        public void AddFunctionToLocalContext(string name, Func<InterpreterFunc> val)
+        {
+            if (Parent == null)
+            {
+                throw new Exception("TODO should not define functions at toplevel");
+            }
+            Parent.LocalFunctions.Add(name, val);
+        }
+    }
+
+    public abstract class InterpreterFunc
+    {
+
+        protected ExprContext ExprContext;
+        public abstract Value Execute();
+
+        public InterpreterFunc(ExprContext exprContext)
+        {
+            ExprContext = exprContext;
+        }
+
+        protected InterpreterFunc()
+        {
+            throw new NotImplementedException();
         }
     }
     
     public class Listener : IExprListener
     {
 
-        private Dictionary<string, Func<InterpreterFunc>> _functions;
-        private Stack<InterpreterFunc> _callStack = new Stack<InterpreterFunc>();
+        public Dictionary<string, Func<ExprContext,InterpreterFunc>> Functions { get; }
+        private Stack<ExprContext> _callStack = new Stack<ExprContext>();
 
-        public Listener(Dictionary<string, Func<InterpreterFunc>> functions)
+        public Listener()
         {
-            _functions = functions;
+            Functions = 
+                new Dictionary<string, Func<ExprContext, InterpreterFunc>>
+                {
+                    {"+", (e) => new Add(e)},
+                    {"-", (e) => new Sub(e)},
+                    {"/", (e) => new Div(e)},
+                    {"*", (e) => new Mult(e)},
+                    {"typeof", (e) => new TypeOf(e)},
+                    {"eq", (e) => new Eq(e)},
+                    {"not", (e) => new Not(e)},
+                    {"when", (e) => new When(e)},
+                    {"if", (e) => new If(e)},
+                    {"def", (e) => new Def(e)},
+                    {"ret", (e) => new Retrieve(e)},
+                    {"%%", (e) => new StatementsGroup(e)},
+                    {"print", (e) => new Print(e)},
+                    {"read", (e) => new Read(e)},
+                    {"function", (e) => new DefineFunction(e)}
+                };
         }
         
         public void EnterExpr(ExprParser.ExprContext context)
         {
             var funcName = context.NAME().GetText();
-            try
-            {
-                var func = _functions[funcName]();
-                if (_callStack.Count > 0)
-                    func.SetParent(_callStack.Peek());
-                _callStack.Push(func);
-            }
-            catch (KeyNotFoundException ex)
-            {
-                throw new UndefinedFunction(funcName);
-            }
+            var func = new ExprContext(funcName, parent: _callStack.Count > 0 ? _callStack.Peek() : null);
+            _callStack.Push(func);
+            
         }
 
         public void ExitExpr(ExprParser.ExprContext context)
         {
-            var lastExpr = _callStack.Pop();
+            var lastExprContext = _callStack.Pop();
            
             if (_callStack.Count > 0)
             {
                 var stackTop = _callStack.Peek();
-                stackTop.AddArgument(new LazyValue(() => lastExpr.Execute()));
+           
+                stackTop.AddArgument(new LazyValue(() =>
+                {
+                    try
+                    {
+                        var func = Functions[lastExprContext.FunctionName](lastExprContext);
+                        return func.Execute();
+                    }
+                    catch (Exception e)
+                    {
+                        var func = lastExprContext.RetrieveFunctionFromLocalContext(lastExprContext.FunctionName)();
+                        return func.Execute();
+                    }
+                 
+                }));
             }
             else
             {
-                Console.WriteLine(lastExpr.Execute().Val);
+                //top level can never be a local function
+                var func = Functions[lastExprContext.FunctionName](lastExprContext);
+                Console.WriteLine(func.Execute().Val);
             } 
         }
 
