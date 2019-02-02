@@ -229,6 +229,21 @@ namespace Interpreter1
             }
         }
     }
+    
+    internal class If : InterpreterFunc
+    {
+        public override Value Execute()
+        {
+            if (Arguments.Count != 3)
+                throw new WrongArgumentCount("if", 3, 3);
+
+            if (Arguments.First().Execute().Type != Types.EmptyList)
+            {
+                return Arguments[1].Execute();
+            }
+            return Arguments.Last().Execute();
+        }
+    }
 
     internal class Def : InterpreterFunc
     {

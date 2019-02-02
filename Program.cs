@@ -18,6 +18,7 @@ namespace Interpreter1
             functions.Add("eq", () => new Eq());
             functions.Add("not", () => new Not());
             functions.Add("when", () => new When());
+            functions.Add("if", () => new If());
             functions.Add("def", () => new Def());
             functions.Add("ret", () => new Retrieve());
             
