@@ -47,7 +47,7 @@ namespace Interpreter1
     {
         public string FunctionName { get; }
         public List<LazyValue> Arguments { get; }
-        private Dictionary<string, Func<InterpreterFunc>> LocalFunctions { get; }
+        private Dictionary<string, Func<ExprContext, InterpreterFunc>> LocalFunctions { get; }
         private Dictionary<string, Value> LocalVariables { get; }
         private ExprContext Parent { get; }
 
@@ -55,7 +55,7 @@ namespace Interpreter1
         {
             this.FunctionName = functionName;
             Parent = parent;
-            LocalFunctions = new Dictionary<string, Func<InterpreterFunc>>();
+            LocalFunctions = new Dictionary<string, Func<ExprContext, InterpreterFunc>>();
             LocalVariables = new Dictionary<string, Value>();
             Arguments = new List<LazyValue>();
         }
@@ -90,7 +90,7 @@ namespace Interpreter1
             LocalVariables.Add(name, val);
         }
         
-        public Func<InterpreterFunc> RetrieveFunctionFromLocalContext(string name)
+        public Func<ExprContext, InterpreterFunc> RetrieveFunctionFromLocalContext(string name)
         {  
             try
             {
@@ -106,7 +106,7 @@ namespace Interpreter1
             }          
         }
         
-        public void AddFunctionToLocalContext(string name, Func<InterpreterFunc> val)
+        public void AddFunctionToLocalContext(string name, Func<ExprContext, InterpreterFunc> val)
         {
             if (Parent == null)
             {
@@ -119,12 +119,12 @@ namespace Interpreter1
     public abstract class InterpreterFunc
     {
 
-        protected ExprContext ExprContext;
+        protected readonly ExprContext Context;
         public abstract Value Execute();
 
-        public InterpreterFunc(ExprContext exprContext)
+        public InterpreterFunc(ExprContext context)
         {
-            ExprContext = exprContext;
+            Context = context;
         }
 
         protected InterpreterFunc()
@@ -187,7 +187,7 @@ namespace Interpreter1
                     }
                     catch (KeyNotFoundException e)
                     {
-                        var func = lastExprContext.RetrieveFunctionFromLocalContext(lastExprContext.FunctionName)();
+                        var func = lastExprContext.RetrieveFunctionFromLocalContext(lastExprContext.FunctionName)(lastExprContext);
                         return func.Execute();
                     }
                  

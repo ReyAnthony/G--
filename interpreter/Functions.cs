@@ -6,14 +6,14 @@ namespace Interpreter1
 {
     internal class Add : InterpreterFunc
     {
-        public Add(ExprContext exprContext) : base(exprContext)
+        public Add(ExprContext context) : base(context)
         {}
         
         public override Value Execute()
         {
             float added = 0;
             Types returnType = Types.Int;
-            ExprContext.Arguments.ForEach(lazy =>
+            Context.Arguments.ForEach(lazy =>
             {
                 var a = lazy.Execute();
                 if (a.Type == Types.FloatingPoint)
@@ -33,7 +33,7 @@ namespace Interpreter1
 
     internal class Sub : InterpreterFunc
     {
-        public Sub(ExprContext exprContext) : base(exprContext)
+        public Sub(ExprContext context) : base(context)
         {
         }
         
@@ -41,9 +41,9 @@ namespace Interpreter1
         {
             float subbed = 0;
             Types returnType = Types.Int;
-            for (var i = 0; i < ExprContext.Arguments.Count; i++)
+            for (var i = 0; i < Context.Arguments.Count; i++)
             {
-                var a = ExprContext.Arguments[i].Execute();
+                var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
                     var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
@@ -69,7 +69,7 @@ namespace Interpreter1
 
     internal class Div : InterpreterFunc
     {
-        public Div(ExprContext exprContext) : base(exprContext)
+        public Div(ExprContext context) : base(context)
         {
         }
 
@@ -77,9 +77,9 @@ namespace Interpreter1
         {
             float divd = 0;
             Types returnType = Types.FloatingPoint;
-            for (var i = 0; i < ExprContext.Arguments.Count; i++)
+            for (var i = 0; i < Context.Arguments.Count; i++)
             {
-                var a = ExprContext.Arguments[i].Execute();
+                var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
                     var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
@@ -104,7 +104,7 @@ namespace Interpreter1
 
     internal class Mult : InterpreterFunc
     {
-        public Mult(ExprContext exprContext) : base(exprContext)
+        public Mult(ExprContext context) : base(context)
         {
         }
 
@@ -112,9 +112,9 @@ namespace Interpreter1
         {
             float mult = 0;
             Types returnType = Types.FloatingPoint;
-            for (var i = 0; i < ExprContext.Arguments.Count; i++)
+            for (var i = 0; i < Context.Arguments.Count; i++)
             {
-                var a = ExprContext.Arguments[i].Execute();
+                var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
                     var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
@@ -139,39 +139,39 @@ namespace Interpreter1
 
     internal class StatementsGroup : InterpreterFunc
     {
-        public StatementsGroup(ExprContext exprContext) : base(exprContext)
+        public StatementsGroup(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count == 0)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 1);
+            if (Context.Arguments.Count == 0)
+                throw new WrongArgumentCount(Context.FunctionName, 1);
 
-            ExprContext.Arguments.GetRange(0, ExprContext.Arguments.Count - 1).ForEach((a) => a.Execute());
-            return ExprContext.Arguments.Last().Execute();
+            Context.Arguments.GetRange(0, Context.Arguments.Count - 1).ForEach((a) => a.Execute());
+            return Context.Arguments.Last().Execute();
         }
     }
 
     internal class Print : InterpreterFunc
     {
-        public Print(ExprContext exprContext) : base(exprContext)
+        public Print(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count < 1)
+            if (Context.Arguments.Count < 1)
                 throw new WrongArgumentCount("ExprContext.FunctionName", 1);
 
             var fullStr = "";
             Value last = null;
-            foreach (var lazy in ExprContext.Arguments)
+            foreach (var lazy in Context.Arguments)
             {
                 var argument = lazy.Execute();
                 if (argument.Type != Types.String && argument.Type != Types.Int && argument.Type != Types.FloatingPoint)
                 {
-                    throw new WrongType(ExprContext.FunctionName, "", Types.String, Types.Int, Types.FloatingPoint);
+                    throw new WrongType(Context.FunctionName, "", Types.String, Types.Int, Types.FloatingPoint);
                 }
                 fullStr += argument.Val;
                 last = argument;
@@ -184,14 +184,14 @@ namespace Interpreter1
 
     internal class Read : InterpreterFunc
     {
-        public Read(ExprContext exprContext) : base(exprContext)
+        public Read(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 0)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 0, 0);
+            if (Context.Arguments.Count != 0)
+                throw new WrongArgumentCount(Context.FunctionName, 0, 0);
 
             var read = Console.ReadLine();
             // HACK pseudo flush for repl
@@ -205,31 +205,31 @@ namespace Interpreter1
 
     internal class TypeOf : InterpreterFunc
     {
-        public TypeOf(ExprContext exprContext) : base(exprContext)
+        public TypeOf(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 1)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 1, 1);
+            if (Context.Arguments.Count != 1)
+                throw new WrongArgumentCount(Context.FunctionName, 1, 1);
 
-            return new Value(ExprContext.Arguments.First().Execute().Type.ToString(), Types.String);
+            return new Value(Context.Arguments.First().Execute().Type.ToString(), Types.String);
         }
     }
 
     internal class Eq : InterpreterFunc
     {
-        public Eq(ExprContext exprContext) : base(exprContext)
+        public Eq(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 2)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 2, 2);
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
 
-            if (ExprContext.Arguments.First().Execute().Val.Equals(ExprContext.Arguments.Last().Execute().Val))
+            if (Context.Arguments.First().Execute().Val.Equals(Context.Arguments.Last().Execute().Val))
             {
                 return new Value("t", Types.Name);
             }
@@ -239,16 +239,16 @@ namespace Interpreter1
 
     internal class Not : InterpreterFunc
     {
-        public Not(ExprContext exprContext) : base(exprContext)
+        public Not(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 1)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 1, 1);
+            if (Context.Arguments.Count != 1)
+                throw new WrongArgumentCount(Context.FunctionName, 1, 1);
 
-            if (ExprContext.Arguments.First().Execute().Type == Types.EmptyList)
+            if (Context.Arguments.First().Execute().Type == Types.EmptyList)
             {
                 return new Value("t", Types.Name);
             }
@@ -258,18 +258,18 @@ namespace Interpreter1
 
     internal class When : InterpreterFunc
     {
-        public When(ExprContext exprContext) : base(exprContext)
+        public When(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 2)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 2, 2);
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
 
-            if (ExprContext.Arguments.First().Execute().Type != Types.EmptyList)
+            if (Context.Arguments.First().Execute().Type != Types.EmptyList)
             {
-                return ExprContext.Arguments.Last().Execute();
+                return Context.Arguments.Last().Execute();
             }
             else
             {
@@ -280,84 +280,89 @@ namespace Interpreter1
     
     internal class If : InterpreterFunc
     {
-        public If(ExprContext exprContext) : base(exprContext)
+        public If(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 3)
+            if (Context.Arguments.Count != 3)
                 throw new WrongArgumentCount("if", 3, 3);
 
-            if (ExprContext.Arguments.First().Execute().Type != Types.EmptyList)
+            if (Context.Arguments.First().Execute().Type != Types.EmptyList)
             {
-                return ExprContext.Arguments[1].Execute();
+                return Context.Arguments[1].Execute();
             }
-            return ExprContext.Arguments.Last().Execute();
+            return Context.Arguments.Last().Execute();
         }
     }
 
     internal class Def : InterpreterFunc
     {
-        public Def(ExprContext exprContext) : base(exprContext)
+        public Def(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 3)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 3, 3);
+            if (Context.Arguments.Count != 3)
+                throw new WrongArgumentCount(Context.FunctionName, 3, 3);
 
-            if (ExprContext.Arguments.First().Execute().Type != Types.Name)
-                throw new WrongType(ExprContext.FunctionName, "first argument should be a Name", Types.Name);
+            if (Context.Arguments.First().Execute().Type != Types.Name)
+                throw new WrongType(Context.FunctionName, "first argument should be a Name", Types.Name);
 
-            ExprContext
+            Context
                 .AddValueToLocalContext(
-                    ExprContext.Arguments.First().Execute().Val, 
-                    ExprContext.Arguments[1].Execute());
+                    Context.Arguments.First().Execute().Val, 
+                    Context.Arguments[1].Execute());
             
-            return ExprContext.Arguments.Last().Execute();
+            return Context.Arguments.Last().Execute();
         }
     }
 
     internal class Retrieve : InterpreterFunc
     {
-        public Retrieve(ExprContext exprContext) : base(exprContext)
+        public Retrieve(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 1)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 1, 1);
+            if (Context.Arguments.Count != 1)
+                throw new WrongArgumentCount(Context.FunctionName, 1, 1);
 
-            var value = ExprContext.Arguments.First().Execute();
+            var value = Context.Arguments.First().Execute();
             if (value.Type != Types.Name)
-                throw new WrongType(ExprContext.FunctionName, " argument should be a Name", Types.Name);
+                throw new WrongType(Context.FunctionName, " argument should be a Name", Types.Name);
 
-            return ExprContext.RetrieveValueFromContext(value.Val);
+            return Context.RetrieveValueFromContext(value.Val);
         }
     }
 
     //Function with no argument
     internal class DefineFunction : InterpreterFunc
     {
-        public DefineFunction(ExprContext exprContext) : base(exprContext)
+        public DefineFunction(ExprContext context) : base(context)
         {
         }
 
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != 2)
-                throw new WrongArgumentCount(ExprContext.FunctionName, 2, 2);
+            if (Context.Arguments.Count < 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2);
 
-            var funcName = ExprContext.Arguments.First().Execute();
+            var funcName = Context.Arguments.First().Execute();
             if (funcName.Type != Types.Name)
-                throw new WrongType(ExprContext.FunctionName, "first argument should be a Name", Types.Name);
+                throw new WrongType(Context.FunctionName, "first argument should be a Name", Types.Name);
             
-            ExprContext.AddFunctionToLocalContext(
+            //let's remove name + body from the context
+            var codeBody = Context.Arguments.Last();
+            Context.Arguments.RemoveAt(0);
+            Context.Arguments.Remove(codeBody); 
+            
+            Context.AddFunctionToLocalContext(
                 funcName.Val, 
-                () => new CustomFunc(new ExprContext(funcName.Val, ExprContext), ExprContext.Arguments.Last()));
+                (context) => new CustomFunc(context, funcName.Val, codeBody, Context));
             
             return new Value("t", Types.Name);
         }
@@ -366,30 +371,29 @@ namespace Interpreter1
     internal class CustomFunc : InterpreterFunc
     {
         private readonly LazyValue _codeBody;
-        private readonly string[] _names;
         private readonly string _functionName;
+        private readonly ExprContext _funcDeclContext;
 
-        public CustomFunc(ExprContext exprContext, LazyValue codeBody, params string[] names) 
-            : base(exprContext)
+        public CustomFunc(ExprContext context, string funcName, LazyValue codeBody, ExprContext funcDeclContext) : base(context)
         {
             _codeBody = codeBody;
-            _names = names;
-            _functionName = ExprContext.FunctionName;
+            _funcDeclContext = funcDeclContext;
+            _functionName = funcName;  
         }
         
         public override Value Execute()
         {
-            if (ExprContext.Arguments.Count != _names.Length)
-                throw new WrongArgumentCount(_functionName, _names.Length);
-            
-            /*
-            for (var i = 0; i < ExprContext.Arguments.Count; i++)
+            var funcArgs = _funcDeclContext.Arguments;
+            if (funcArgs.Count != Context.Arguments.Count)
+                throw new WrongArgumentCount(_functionName, Context.Arguments.Count);
+                
+            for (var i = 0; i < Context.Arguments.Count; i++)
             {
-                var lazy = ExprContext.Arguments[i];
-                var val = lazy.Execute();
-                ExprContext.AddValueToLocalContext(_names[i], val);
+                var name = _funcDeclContext.Arguments[i].Execute().Val;
+                var val = Context.Arguments[i].Execute();
+                //_funcDeclContext.Clean(); // TODO
+                _funcDeclContext.AddValueToLocalContext(name, val);
             }
-            */
 
             return _codeBody.Execute();
         }

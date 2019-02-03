@@ -5,7 +5,7 @@ namespace Interpreter1
 {
     internal class UndefinedFunction : Exception
     {
-        public UndefinedFunction(string name) : base($"The function {name} is undefined.")
+        public UndefinedFunction(string name) : base($"The function '{name}' is undefined.")
         {
             
         }
@@ -13,7 +13,7 @@ namespace Interpreter1
     
     internal class UndefinedVariable : Exception
     {
-        public UndefinedVariable(string name) : base($"The variable {name} is undefined.")
+        public UndefinedVariable(string name) : base($"The variable '{name}' is undefined.")
         {
             
         }
@@ -22,7 +22,7 @@ namespace Interpreter1
     internal class WrongArgumentCount : Exception
     {
         public WrongArgumentCount(string funcName, int minArgs, int maxArgs = Int32.MaxValue) 
-            : base($"{funcName} must have at least {minArgs} argument(s) and at most {maxArgs} argument(s)")
+            : base($"'{funcName}' must have at least {minArgs} argument(s) and at most {maxArgs} argument(s)")
         {
         }
     }

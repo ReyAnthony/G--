@@ -1,4 +1,19 @@
 (%% 
+    ;; This is a comment it will be ignored by the interpreter ;;
+	(function with-params a b c
+	    (print (ret a) " " (ret b) " " (ret c)))
+ 
+	(with-params 1 2 3)
+	
+	(function recur-with-params a
+	    (%% 
+	        (print (ret a))
+	        (if (eq (ret a) 100)
+	           () 
+               (recur-with-params (+ 1 (ret a))))))
+	        
+	(recur-with-params 1)
+	    
 	(function yes/no/loop
         (def answer (read)
             (if (eq (ret answer) yes)
