@@ -170,6 +170,9 @@ namespace Interpreter1
                     {"ret", (e) => new Retrieve(e)},
                     {"print", (e) => new Print(e)},
                     {"read", (e) => new Read(e)},
+                    {"and", (e) => new And(e)},
+                    {"OR", (e) => new Or(e)},
+                    {"random", (e) => new Random(e)},  
                     {"function", (e) => new DefineFunction(e)}
                 };
         }

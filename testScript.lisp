@@ -25,7 +25,7 @@
     (function yes/no
             (def answer (read)
                 (if (== (ret answer) yes)
-                    t
+                    yes
                     no)))
 
 	(print "Welcome to my world !")
@@ -37,7 +37,7 @@
             (yes/no/loop)
             (print "Which reminds me... Do you like cookies ?")
             (def cookie (yes/no) 
-                (if (== t (ret cookie)) 
+                (if (== yes (ret cookie)) 
                     (print "You're a fine chap !")
                     (print "We'll deal with this later...")))))) 
         

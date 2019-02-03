@@ -58,6 +58,7 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="Expr.g4" />
+    <Content Include="moreOrLess.lisp" />
     <Content Include="README.md" />
     <Content Include="testScript.lisp" />
   </ItemGroup>

@@ -327,6 +327,50 @@ namespace Interpreter1
             return Value.No();
         }
     }
+    
+    internal class And : InterpreterFunc
+    {
+        public And(ExprContext context) : base(context)
+        {
+        }
+
+        public override Value Execute()
+        {
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
+
+            var a = Context.Arguments.First().Execute().Type != Types.Falsy;
+            var b = Context.Arguments.Last().Execute().Type != Types.Falsy;
+            
+            if (a == b)
+            {
+                return Value.Yes();
+            }
+            return Value.No();
+        }
+    }
+    
+    internal class Or : InterpreterFunc
+    {
+        public Or(ExprContext context) : base(context)
+        {
+        }
+
+        public override Value Execute()
+        {
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
+
+            var a = Context.Arguments.First().Execute().Type != Types.Falsy;
+            var b = Context.Arguments.Last().Execute().Type != Types.Falsy;
+            
+            if (a || b)
+            {
+                return Value.Yes();
+            }
+            return Value.No();
+        }
+    }
 
     internal class When : InterpreterFunc
     {
@@ -470,4 +514,32 @@ namespace Interpreter1
             return _codeBody.Execute();
         }
     }
+    
+    internal class Random : InterpreterFunc
+    {
+        public Random(ExprContext context) : base(context)
+        {
+        }
+        
+        public override Value Execute()
+        {
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
+            
+            var arg1 = Context.Arguments.First().Execute();
+            var arg2 = Context.Arguments.Last().Execute();
+                 
+            if (arg1.Type != Types.Int && 
+                arg2.Type != Types.Int)
+            {
+                throw new WrongType(Context.FunctionName, "", Types.Int);
+            }
+
+            var random = new System.Random();
+            var number = random.Next(int.Parse(arg1.Val), int.Parse(arg2.Val));
+
+            return new Value(number.ToString(), Types.Int);
+        }
+    }
+
 }

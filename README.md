@@ -2,6 +2,7 @@
 Trying to craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
 
 Features : 
+
 - Lexically scoped functions and variables 
 - Function with parameters
 - Recursion (with and without parameters) (beware of the stackoverflow...)
@@ -10,8 +11,36 @@ Features :
 - Boolean logic
 - Control flow
 - Type predicates
+- Random number generation
 
-# Sample program (Won't work as-is in the REPL, as it reads line by line for now)
+# A game of more or less 
+```
+(%% 
+    (function get-random-number min max 
+        (random (ret min) (ret max)))
+        
+    (function game tries number min max
+        (%%
+            (print "Please choose a number beetwen " (ret min) " and " (ret max))
+            (def choice (read)
+                (%%
+                    (if (and (== (ret choice) (ret number)) (not (== tries 0)))
+                        (print "Congratulation ! You won")
+                        (%%
+                            (when (< (ret choice) (ret number)) (print "It's bigger !"))
+                            (when (> (ret choice) (ret number)) (print "It's smaller !"))
+                            (print (- (ret tries) 1) " left !")
+                            (if (== 0 (- (ret tries) 1))   
+                                (print "No more tries.. You loose !")
+                                (game (- (ret tries) 1) (ret number) (ret min) (ret max)))))))))
+                            
+    (def min 1
+        (def max 100
+            (game 10 (get-random-number (ret min) (ret max)) (ret min) (ret max)))))
+
+```
+
+# Sample program with random stuff
 ```
 (%% 
     ;; This is a comment it will be ignored by the interpreter ;;
@@ -40,7 +69,7 @@ Features :
     (function yes/no
             (def answer (read)
                 (if (== (ret answer) yes)
-                    t
+                    yes
                     no)))
 
 	(print "Welcome to my world !")
@@ -52,11 +81,12 @@ Features :
             (yes/no/loop)
             (print "Which reminds me... Do you like cookies ?")
             (def cookie (yes/no) 
-                (if (== t (ret cookie)) 
+                (if (== yes (ret cookie)) 
                     (print "You're a fine chap !")
                     (print "We'll deal with this later...")))))) 
                 
 ```  
+
 # In the REPL you can declare anything
 
 ```
