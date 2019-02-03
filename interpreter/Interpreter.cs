@@ -158,6 +158,7 @@ namespace Interpreter1
                     {"+", (e) => new Add(e)},
                     {"-", (e) => new Sub(e)},
                     {"/", (e) => new Div(e)},
+                    {"%", (e) => new Mod(e)},
                     {"*", (e) => new Mult(e)},
                     {"<", (e) => new Less(e)},
                     {">", (e) => new More(e)},
@@ -171,7 +172,7 @@ namespace Interpreter1
                     {"print", (e) => new Print(e)},
                     {"read", (e) => new Read(e)},
                     {"and", (e) => new And(e)},
-                    {"OR", (e) => new Or(e)},
+                    {"or", (e) => new Or(e)},
                     {"random", (e) => new Random(e)},  
                     {"function", (e) => new DefineFunction(e)}
                 };

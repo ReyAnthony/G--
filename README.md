@@ -1,4 +1,4 @@
-# Pseudo LISP-like interpreter
+# Pseudoscript
 Trying to craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
 
 Features : 
@@ -38,6 +38,30 @@ Features :
         (def max 100
             (game 10 (get-random-number (ret min) (ret max)) (ret min) (ret max)))))
 
+```
+
+# The meanest fizzBuzz test ever (you have to implement an interpreter THEN solve fizzBuzz lmao) :
+```
+(%%   
+    (function isFizz num 
+        (== 0 (% (ret num) 3)))
+        
+    (function isBuzz num 
+        (== 0 (% (ret num) 5)))
+        
+   (function isNeither num 
+        (not (or (isFizz (ret num)) (isBuzz (ret num)))))     
+
+   (function letsgo counter max 
+        (when (< (ret counter) (+ (ret max) 1))
+            (%%
+                (print 
+                    (when (isFizz (ret counter)) "Fizz")
+                    (when (isBuzz (ret counter)) "Buzz")
+                    (when (isNeither (ret counter)) (ret counter)))
+                (letsgo (+ (ret counter) 1) (ret max)))))
+            
+   (letsgo 1 100))
 ```
 
 # Sample program with random stuff

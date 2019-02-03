@@ -101,6 +101,41 @@ namespace Interpreter1
             return new Value(divd.ToString(CultureInfo.InvariantCulture), returnType);
         }
     }
+    
+    internal class Mod : InterpreterFunc
+    {
+        public Mod(ExprContext context) : base(context)
+        {
+        }
+
+        public override Value Execute()
+        {
+            float divd = 0;
+            Types returnType = Types.FloatingPoint;
+            for (var i = 0; i < Context.Arguments.Count; i++)
+            {
+                var a = Context.Arguments[i].Execute();
+                if (a.Type == Types.FloatingPoint)
+                {
+                    var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
+                    if (i == 0)
+                        divd = val;
+                    else
+                        divd %= val;
+                }
+                else
+                {
+                    var val = int.Parse(a.Val.ToString());
+                    if (i == 0)
+                        divd = val;
+                    else
+                        divd %= val;
+                }
+            }
+
+            return new Value(divd.ToString(CultureInfo.InvariantCulture), returnType);
+        }
+    }
 
     internal class Mult : InterpreterFunc
     {
@@ -168,8 +203,16 @@ namespace Interpreter1
             Value last = null;
             foreach (var lazy in Context.Arguments)
             {
+                
                 var argument = lazy.Execute();
-                if (argument.Type != Types.String && argument.Type != Types.Int && argument.Type != Types.FloatingPoint)
+                if (argument.Type == Types.Falsy)
+                {
+                    continue;
+                }
+                
+                if (argument.Type != Types.String && 
+                    argument.Type != Types.Int && 
+                    argument.Type != Types.FloatingPoint)
                 {
                     throw new WrongType(Context.FunctionName, "", Types.String, Types.Int, Types.FloatingPoint);
                 }
@@ -342,7 +385,7 @@ namespace Interpreter1
             var a = Context.Arguments.First().Execute().Type != Types.Falsy;
             var b = Context.Arguments.Last().Execute().Type != Types.Falsy;
             
-            if (a == b)
+            if (a && b)
             {
                 return Value.Yes();
             }

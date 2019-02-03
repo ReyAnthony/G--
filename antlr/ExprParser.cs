@@ -36,7 +36,7 @@ public partial class ExprParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
-		LPAR=1, RPAR=2, NAME=3, COMMENTS=4, STRING=5, FALSY=6, INT=7, FLOATING=8, 
+		LPAR=1, RPAR=2, FALSY=3, NAME=4, COMMENTS=5, STRING=6, INT=7, FLOATING=8, 
 		WS=9;
 	public const int
 		RULE_prog = 0, RULE_expr = 1, RULE_args = 2;
@@ -45,10 +45,10 @@ public partial class ExprParser : Parser {
 	};
 
 	private static readonly string[] _LiteralNames = {
-		null, "'('", "')'", null, null, null, "'no'"
+		null, "'('", "')'", "'no'"
 	};
 	private static readonly string[] _SymbolicNames = {
-		null, "LPAR", "RPAR", "NAME", "COMMENTS", "STRING", "FALSY", "INT", "FLOATING", 
+		null, "LPAR", "RPAR", "FALSY", "NAME", "COMMENTS", "STRING", "INT", "FLOATING", 
 		"WS"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);
@@ -161,7 +161,7 @@ public partial class ExprParser : Parser {
 			State = 13;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAR) | (1L << NAME) | (1L << STRING) | (1L << FALSY) | (1L << INT) | (1L << FLOATING))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << LPAR) | (1L << FALSY) | (1L << NAME) | (1L << STRING) | (1L << INT) | (1L << FLOATING))) != 0)) {
 				{
 				{
 				State = 10; args();
@@ -280,15 +280,15 @@ public partial class ExprParser : Parser {
 		'\b', '\x3', '\x2', '\x2', '\x2', '\x4', '\n', '\x3', '\x2', '\x2', '\x2', 
 		'\x6', '\x1A', '\x3', '\x2', '\x2', '\x2', '\b', '\t', '\x5', '\x4', '\x3', 
 		'\x2', '\t', '\x3', '\x3', '\x2', '\x2', '\x2', '\n', '\v', '\a', '\x3', 
-		'\x2', '\x2', '\v', '\xF', '\a', '\x5', '\x2', '\x2', '\f', '\xE', '\x5', 
+		'\x2', '\x2', '\v', '\xF', '\a', '\x6', '\x2', '\x2', '\f', '\xE', '\x5', 
 		'\x6', '\x4', '\x2', '\r', '\f', '\x3', '\x2', '\x2', '\x2', '\xE', '\x11', 
 		'\x3', '\x2', '\x2', '\x2', '\xF', '\r', '\x3', '\x2', '\x2', '\x2', '\xF', 
 		'\x10', '\x3', '\x2', '\x2', '\x2', '\x10', '\x12', '\x3', '\x2', '\x2', 
 		'\x2', '\x11', '\xF', '\x3', '\x2', '\x2', '\x2', '\x12', '\x13', '\a', 
 		'\x4', '\x2', '\x2', '\x13', '\x5', '\x3', '\x2', '\x2', '\x2', '\x14', 
 		'\x1B', '\a', '\t', '\x2', '\x2', '\x15', '\x1B', '\a', '\n', '\x2', '\x2', 
-		'\x16', '\x1B', '\a', '\x5', '\x2', '\x2', '\x17', '\x1B', '\a', '\a', 
-		'\x2', '\x2', '\x18', '\x1B', '\a', '\b', '\x2', '\x2', '\x19', '\x1B', 
+		'\x16', '\x1B', '\a', '\x6', '\x2', '\x2', '\x17', '\x1B', '\a', '\b', 
+		'\x2', '\x2', '\x18', '\x1B', '\a', '\x5', '\x2', '\x2', '\x19', '\x1B', 
 		'\x5', '\x4', '\x3', '\x2', '\x1A', '\x14', '\x3', '\x2', '\x2', '\x2', 
 		'\x1A', '\x15', '\x3', '\x2', '\x2', '\x2', '\x1A', '\x16', '\x3', '\x2', 
 		'\x2', '\x2', '\x1A', '\x17', '\x3', '\x2', '\x2', '\x2', '\x1A', '\x18', 
