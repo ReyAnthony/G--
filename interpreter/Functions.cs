@@ -231,11 +231,83 @@ namespace Interpreter1
 
             if (Context.Arguments.First().Execute().Val.Equals(Context.Arguments.Last().Execute().Val))
             {
-                return new Value("t", Types.Name);
+                return Value.Yes();
             }
-            return new Value("()", Types.EmptyList);
+            return Value.No();
         }
     }
+    
+    internal class Less : InterpreterFunc
+     {
+             public Less(ExprContext context) : base(context)
+             {
+             }
+     
+             public override Value Execute()
+             {
+                 if (Context.Arguments.Count != 2)
+                     throw new WrongArgumentCount(Context.FunctionName, 2, 2);
+     
+                 var arg1 = Context.Arguments.First().Execute();
+                 var arg2 = Context.Arguments.Last().Execute();
+                 
+                 if (arg1.Type != Types.Int && 
+                     arg1.Type != Types.FloatingPoint && 
+                     arg2.Type != Types.FloatingPoint &&
+                     arg2.Type != Types.Int)
+                 {
+                     throw new WrongType(Context.FunctionName, "", Types.Int, Types.FloatingPoint);
+                 }
+     
+                 float a = 0;
+                 float b = 0;
+                 a = float.Parse(arg1.Val);
+                 b = float.Parse(arg2.Val);
+               
+                 if (a < b)
+                 {
+                     return Value.Yes();
+                 }
+                 return Value.No();
+             }
+             
+     }
+    
+    internal class More : InterpreterFunc
+    {
+        public More(ExprContext context) : base(context)
+        {
+        }
+
+        public override Value Execute()
+        {
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
+            
+            var arg1 = Context.Arguments.First().Execute();
+            var arg2 = Context.Arguments.Last().Execute();
+                 
+            if (arg1.Type != Types.Int && 
+                arg1.Type != Types.FloatingPoint && 
+                arg2.Type != Types.FloatingPoint &&
+                arg2.Type != Types.Int)
+            {
+                throw new WrongType(Context.FunctionName, "", Types.Int, Types.FloatingPoint);
+            }
+
+            float a = 0;
+            float b = 0;
+            a = float.Parse(arg1.Val);
+            b = float.Parse(arg2.Val);
+          
+            if (a > b)
+            {
+                return Value.Yes();
+            }
+            return Value.No();
+        }
+    }
+
 
     internal class Not : InterpreterFunc
     {
@@ -248,11 +320,11 @@ namespace Interpreter1
             if (Context.Arguments.Count != 1)
                 throw new WrongArgumentCount(Context.FunctionName, 1, 1);
 
-            if (Context.Arguments.First().Execute().Type == Types.EmptyList)
+            if (Context.Arguments.First().Execute().Type == Types.Falsy)
             {
-                return new Value("t", Types.Name);
+                return Value.Yes();
             }
-            return new Value("()", Types.EmptyList);
+            return Value.No();
         }
     }
 
@@ -267,13 +339,13 @@ namespace Interpreter1
             if (Context.Arguments.Count != 2)
                 throw new WrongArgumentCount(Context.FunctionName, 2, 2);
 
-            if (Context.Arguments.First().Execute().Type != Types.EmptyList)
+            if (Context.Arguments.First().Execute().Type != Types.Falsy)
             {
                 return Context.Arguments.Last().Execute();
             }
             else
             {
-                return new Value("()", Types.EmptyList);
+                return Value.No();
             }
         }
     }
@@ -289,7 +361,7 @@ namespace Interpreter1
             if (Context.Arguments.Count != 3)
                 throw new WrongArgumentCount("if", 3, 3);
 
-            if (Context.Arguments.First().Execute().Type != Types.EmptyList)
+            if (Context.Arguments.First().Execute().Type != Types.Falsy)
             {
                 return Context.Arguments[1].Execute();
             }
@@ -364,7 +436,7 @@ namespace Interpreter1
                 funcName.Val, 
                 (context) => new CustomFunc(context, funcName.Val, codeBody, Context));
             
-            return new Value("t", Types.Name);
+            return Value.Yes();
         }
     }
 

@@ -1,14 +1,14 @@
 grammar Expr;		
 prog:  expr;	
 expr:  LPAR NAME args* RPAR;
-args:  INT | FLOATING | NAME | STRING | EMPTY_LIST | expr;
+args:  INT | FLOATING | NAME | STRING | FALSY | expr;
 
 LPAR: '(';
 RPAR: ')';
-NAME: [a-zA-Z+-/%*]+;
+NAME: [a-zA-Z+-/%*><=]+;
 COMMENTS: ';;'.*? ';;' -> skip;
 STRING: '"' .*? '"';
-EMPTY_LIST: LPAR ' '*? RPAR;
+FALSY: 'no';
 INT: [0-9]+;
 FLOATING: [0-9]+'.'[0-9]+;
 WS : [ \t\r\n]+ -> skip ;

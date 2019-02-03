@@ -23,15 +23,15 @@ Features :
 	(function recur-with-params a
 	    (%% 
 	        (print (ret a))
-	        (if (eq (ret a) 100)
-	           () 
+	        (if (== (ret a) 100)
+	           no 
                (recur-with-params (+ 1 (ret a))))))
 	        
 	(recur-with-params 1)
 	    
 	(function yes/no/loop
         (def answer (read)
-            (if (eq (ret answer) yes)
+            (if (== (ret answer) yes)
                 (print "Fine !" "")
                 (%% 
                     (print "That's not quite what I want to hear ...")
@@ -39,9 +39,9 @@ Features :
                     
     (function yes/no
             (def answer (read)
-                (if (eq (ret answer) yes)
+                (if (== (ret answer) yes)
                     t
-                    ())))
+                    no)))
 
 	(print "Welcome to my world !")
 	(print "First of all, what is your name ?")
@@ -52,10 +52,10 @@ Features :
             (yes/no/loop)
             (print "Which reminds me... Do you like cookies ?")
             (def cookie (yes/no) 
-                (if (eq t (ret cookie)) 
+                (if (== t (ret cookie)) 
                     (print "You're a fine chap !")
                     (print "We'll deal with this later...")))))) 
-        
+                
 ```  
 # In the REPL you can declare anything
 

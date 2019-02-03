@@ -28,7 +28,8 @@ namespace Interpreter1
                     Console.WriteLine(ex.Message);
                 }
              
-                return;
+                Console.WriteLine("Back to the REPL");
+                Console.ReadLine();
             }
             
             string line;

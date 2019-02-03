@@ -9,6 +9,16 @@ namespace Interpreter1
 {
     public class Value
     {
+        public static Value Yes()
+        {
+            return new Value("yes", Types.Name);
+        }
+        
+        public static Value No()
+        {
+            return new Value("no", Types.Falsy);
+        }
+        
         public string Val { get; }
         public Types Type { get; }
 
@@ -40,7 +50,7 @@ namespace Interpreter1
         FloatingPoint,
         Name,
         String,
-        EmptyList
+        Falsy
     }
 
     public class ExprContext
@@ -144,18 +154,20 @@ namespace Interpreter1
             Functions = 
                 new Dictionary<string, Func<ExprContext, InterpreterFunc>>
                 {
+                    {"%%", (e) => new StatementsGroup(e)},
                     {"+", (e) => new Add(e)},
                     {"-", (e) => new Sub(e)},
                     {"/", (e) => new Div(e)},
                     {"*", (e) => new Mult(e)},
+                    {"<", (e) => new Less(e)},
+                    {">", (e) => new More(e)},
+                    {"==", (e) => new Eq(e)},
                     {"typeof", (e) => new TypeOf(e)},
-                    {"eq", (e) => new Eq(e)},
                     {"not", (e) => new Not(e)},
                     {"when", (e) => new When(e)},
                     {"if", (e) => new If(e)},
                     {"def", (e) => new Def(e)},
                     {"ret", (e) => new Retrieve(e)},
-                    {"%%", (e) => new StatementsGroup(e)},
                     {"print", (e) => new Print(e)},
                     {"read", (e) => new Read(e)},
                     {"function", (e) => new DefineFunction(e)}
@@ -221,9 +233,9 @@ namespace Interpreter1
             {
                 func.AddArgument(new LazyValue(() => new Value(context.NAME().GetText(), Types.Name)));
             }
-            else if (context.EMPTY_LIST() != null)
+            else if (context.FALSY() != null)
             {
-                func.AddArgument(new LazyValue(() => new Value(context.EMPTY_LIST().GetText(), Types.EmptyList)));
+                func.AddArgument(new LazyValue(() => new Value(context.FALSY().GetText(), Types.Falsy)));
             }
                 
             //if it's a function, then we do nothing,
