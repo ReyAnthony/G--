@@ -59,6 +59,7 @@ namespace Interpreter1
         public List<LazyValue> Arguments { get; }
         private Dictionary<string, Func<ExprContext, InterpreterFunc>> LocalFunctions { get; }
         private Dictionary<string, Value> LocalVariables { get; }
+        private Dictionary<string, Value> GlobalVariables { get; }
         private ExprContext Parent { get; }
 
         public ExprContext(string functionName, ExprContext parent)
@@ -67,6 +68,7 @@ namespace Interpreter1
             Parent = parent;
             LocalFunctions = new Dictionary<string, Func<ExprContext, InterpreterFunc>>();
             LocalVariables = new Dictionary<string, Value>();
+            GlobalVariables = new Dictionary<string, Value>();
             Arguments = new List<LazyValue>();
         }
         
@@ -76,7 +78,8 @@ namespace Interpreter1
         }
 
         public Value RetrieveValueFromContext(string name)
-        {  
+        {
+        
             try
             {
                 return LocalVariables[name];
@@ -85,15 +88,35 @@ namespace Interpreter1
             {
                 if (Parent == null)
                 {
-                    throw new UndefinedVariable(name);
+                    return GlobalVariables[name];
                 }
                 return Parent.RetrieveValueFromContext(name);
-            }          
+            }   
         }
         
         public void AddValueToLocalContext(string name, Value val)
         {
+            //Hack not to break when recursion...
+            //but SHOULD NOT BE THIS
+            //anyway, will only cause pbs in recursion because you can't 
+            //actually call it twice in the same context
+            if (LocalVariables.ContainsKey(name))
+                LocalVariables.Remove(name);
             LocalVariables.Add(name, val);
+        }
+        
+        public void AddValueToGlobalContext(string name, Value val)
+        {
+            if (Parent == null)
+            {
+                if (GlobalVariables.ContainsKey(name))
+                    GlobalVariables.Remove(name);
+                GlobalVariables.Add(name, val);
+            }
+            else
+            {
+                Parent.AddValueToGlobalContext(name, val); 
+            }   
         }
         
         public Func<ExprContext, InterpreterFunc> RetrieveFunctionFromLocalContext(string name)
@@ -163,15 +186,19 @@ namespace Interpreter1
                     {"not", (e) => new Not(e)},
                     {"when", (e) => new When(e)},
                     {"if", (e) => new If(e)},
-                    {"def", (e) => new Def(e)},
+                    {"let", (e) => new Let(e)},
+                    {"set", (e) => new Set(e)},
                     {"ret", (e) => new Retrieve(e)},
                     {"print", (e) => new Print(e)},
                     {"read", (e) => new Read(e)},
                     {"and", (e) => new And(e)},
                     {"or", (e) => new Or(e)},
                     {"random", (e) => new Random(e)},  
-                    {"function", (e) => new DefineFunction(e)}
+                    {"function", (e) => new DefineFunction(e)},
+                    {"apply", (e) => new Apply(e)}
                 };
+            
+            
         }
         
         public void EnterExpr(ExprParser.ExprContext context)

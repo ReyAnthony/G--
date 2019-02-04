@@ -15,7 +15,7 @@
 	(recur-with-params 1)
 	    
 	(function yes/no/loop
-        (def answer (read)
+        (let answer (read)
             (if (== (ret answer) yes)
                 (print "Fine !" "")
                 (%% 
@@ -23,20 +23,20 @@
                     (yes/no/loop)))))
                     
     (function yes/no
-            (def answer (read)
+            (let answer (read)
                 (if (== (ret answer) yes)
                     yes
                     no)))
 
 	(print "Welcome to my world !")
 	(print "First of all, what is your name ?")
-	(def name (read)
+	(let name (read)
         (%% 
             (print "Ok so your name is " (ret name) " !")
             (print "I hope you're not a faint of hearth, my little " (ret name) " !")
             (yes/no/loop)
             (print "Which reminds me... Do you like cookies ?")
-            (def cookie (yes/no) 
+            (let cookie (yes/no) 
                 (if (== yes (ret cookie)) 
                     (print "You're a fine chap !")
                     (print "We'll deal with this later...")))))) 

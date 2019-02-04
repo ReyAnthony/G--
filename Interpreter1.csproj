@@ -62,6 +62,7 @@
     <Content Include="moreOrLess.lisp" />
     <Content Include="README.md" />
     <Content Include="recursion.lisp" />
+    <Content Include="scoping.lisp" />
     <Content Include="testScript.lisp" />
   </ItemGroup>
   <ItemGroup>

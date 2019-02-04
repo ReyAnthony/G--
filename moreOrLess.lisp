@@ -5,7 +5,7 @@
     (function game tries number min max
         (%%
             (print "Please choose a number beetwen " (ret min) " and " (ret max))
-            (def choice (read)
+            (let choice (read)
                 (%%
                     (if (and (== (ret choice) (ret number)) (not (== tries 0)))
                         (print "Congratulation ! You won")
@@ -17,6 +17,6 @@
                                 (print "No more tries.. You loose !")
                                 (game (- (ret tries) 1) (ret number) (ret min) (ret max)))))))))
                             
-    (def min 1
-        (def max 100
+    (let min 1
+        (let max 100
             (game 10 (get-random-number (ret min) (ret max)) (ret min) (ret max)))))

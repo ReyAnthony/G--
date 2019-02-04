@@ -1,3 +1,4 @@
+;; BROKEN ;;
 (%% 
     (function recursion count 
         (%% 
@@ -6,6 +7,4 @@
                      (print (ret count))
                      (recursion (+ 1 (ret count)))
                      (print (ret count)))))) 
-                     ;; Is broken, as for now each time you have a recursion, 
-                        the parameters are overriden...;;
-    (recursion 0))         
+    (recursion 0))       

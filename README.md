@@ -1,11 +1,14 @@
-# Pseudoscript
-Trying to craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
+# G--
+Craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
+(Please don't insult me if I don't respect lisp principles, that's not the goal.)
 
 Features : 
 
-- Lexically scoped functions and variables 
-- Function with parameters
-- Recursion (with and without parameters) (beware of the stackoverflow...)
+- Lexically scoped functions and variables (let)
+- Globally scoped variables (set)
+- Function (with and without parameters)
+- Passing function (parameterless) as parameters
+- Recursion (with and without parameters) (beware of the stackoverflow...) (+ avoid using them if not tail recursive rn..)
 - Print to repl
 - Read repl 
 - Boolean logic
@@ -22,7 +25,7 @@ Features :
     (function game tries number min max
         (%%
             (print "Please choose a number beetwen " (ret min) " and " (ret max))
-            (def choice (read)
+            (let choice (read)
                 (%%
                     (if (and (== (ret choice) (ret number)) (not (== tries 0)))
                         (print "Congratulation ! You won")
@@ -34,9 +37,25 @@ Features :
                                 (print "No more tries.. You loose !")
                                 (game (- (ret tries) 1) (ret number) (ret min) (ret max)))))))))
                             
-    (def min 1
-        (def max 100
+    (let min 1
+        (let max 100
             (game 10 (get-random-number (ret min) (ret max)) (ret min) (ret max)))))
+
+```
+
+# Broken recursion 
+
+```
+;; Right now this is BROKEN ;;
+(%% 
+    (function recursion count 
+        (%% 
+             (when (< (ret count) 100)
+                (%%  
+                     (print (ret count))
+                     (recursion (+ 1 (ret count)))
+                     (print (ret count))))))  ;; HERE, count is affected by call of the recursion because of a design flaw ;;
+    (recursion 0))    
 
 ```
 
@@ -83,7 +102,7 @@ Features :
 	(recur-with-params 1)
 	    
 	(function yes/no/loop
-        (def answer (read)
+        (let answer (read)
             (if (== (ret answer) yes)
                 (print "Fine !" "")
                 (%% 
@@ -91,25 +110,48 @@ Features :
                     (yes/no/loop)))))
                     
     (function yes/no
-            (def answer (read)
+            (let answer (read)
                 (if (== (ret answer) yes)
                     yes
                     no)))
 
 	(print "Welcome to my world !")
 	(print "First of all, what is your name ?")
-	(def name (read)
+	(let name (read)
         (%% 
             (print "Ok so your name is " (ret name) " !")
             (print "I hope you're not a faint of hearth, my little " (ret name) " !")
             (yes/no/loop)
             (print "Which reminds me... Do you like cookies ?")
-            (def cookie (yes/no) 
+            (let cookie (yes/no) 
                 (if (== yes (ret cookie)) 
                     (print "You're a fine chap !")
                     (print "We'll deal with this later...")))))) 
                 
 ```  
+
+# Weird stuff with scopes : 
+
+```
+(%% 
+    (set i 0)
+    (%%
+        (function while cond body
+            (if (== no (apply (ret cond)))
+                (%%
+                    (apply body)
+                    (while (ret cond) (ret body)))
+                no))          
+        (function body 
+            (%%
+                (print (ret i))
+                (set i (+ 1 (ret i)))))               
+        (function cond 
+            (< 100 (ret i)))   
+
+        (while cond body)))  
+
+```
 
 # In the REPL you can declare anything
 

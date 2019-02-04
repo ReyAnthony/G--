@@ -456,9 +456,9 @@ namespace Interpreter1
         }
     }
 
-    internal class Def : InterpreterFunc
+    internal class Let : InterpreterFunc
     {
-        public Def(ExprContext context) : base(context)
+        public Let(ExprContext context) : base(context)
         {
         }
 
@@ -478,6 +478,30 @@ namespace Interpreter1
             return Context.Arguments.Last().Execute();
         }
     }
+    
+    internal class Set : InterpreterFunc
+    {
+        public Set(ExprContext context) : base(context)
+        {
+        }
+
+        public override Value Execute()
+        {
+            if (Context.Arguments.Count != 2)
+                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
+
+            if (Context.Arguments.First().Execute().Type != Types.Name)
+                throw new WrongType(Context.FunctionName, "first argument should be a Name", Types.Name);
+
+            Context
+                .AddValueToGlobalContext(
+                    Context.Arguments.First().Execute().Val, 
+                    Context.Arguments[1].Execute());
+            
+            return Value.Yes();
+        }
+    }
+    
 
     internal class Retrieve : InterpreterFunc
     {
@@ -523,7 +547,6 @@ namespace Interpreter1
                 funcName.Val, 
                 (context) =>
                 {
-                   
                     return new CustomFunc(context, funcName.Val, codeBody, codeBodyContext);
                 });
             
@@ -548,7 +571,7 @@ namespace Interpreter1
         {
             var funcArgs = _funcDeclContext.Arguments;
             if (funcArgs.Count != Context.Arguments.Count)
-                throw new WrongArgumentCount(_functionName, Context.Arguments.Count);
+                throw new WrongArgumentCount(_functionName, Context.Arguments.Count, Context.Arguments.Count);
                 
             for (var i = 0; i < Context.Arguments.Count; i++)
             {
@@ -587,6 +610,23 @@ namespace Interpreter1
             var number = random.Next(int.Parse(arg1.Val), int.Parse(arg2.Val));
 
             return new Value(number.ToString(), Types.Int);
+        }
+    }
+    
+    internal class Apply : InterpreterFunc
+    {
+        public Apply(ExprContext context) : base(context)
+        {
+        }
+        
+        public override Value Execute()
+        {
+            if (Context.Arguments.Count < 1)
+                throw new WrongArgumentCount(Context.FunctionName, 1);
+            
+            var functionName = Context.Arguments.First().Execute().Val;
+            var func = Context.RetrieveFunctionFromLocalContext(functionName);
+            return func.Invoke(new ExprContext(functionName, Context)).Execute();
         }
     }
 
