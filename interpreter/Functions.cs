@@ -498,7 +498,6 @@ namespace Interpreter1
         }
     }
 
-    //Function with no argument
     internal class DefineFunction : InterpreterFunc
     {
         public DefineFunction(ExprContext context) : base(context)
@@ -517,11 +516,16 @@ namespace Interpreter1
             //let's remove name + body from the context
             var codeBody = Context.Arguments.Last();
             Context.Arguments.RemoveAt(0);
-            Context.Arguments.Remove(codeBody); 
-            
+            Context.Arguments.Remove(codeBody);
+
+            var codeBodyContext = Context;
             Context.AddFunctionToLocalContext(
                 funcName.Val, 
-                (context) => new CustomFunc(context, funcName.Val, codeBody, Context));
+                (context) =>
+                {
+                   
+                    return new CustomFunc(context, funcName.Val, codeBody, codeBodyContext);
+                });
             
             return Value.Yes();
         }
@@ -550,7 +554,8 @@ namespace Interpreter1
             {
                 var name = _funcDeclContext.Arguments[i].Execute().Val;
                 var val = Context.Arguments[i].Execute();
-                //_funcDeclContext.Clean(); // TODO
+                
+                //FIXME we reuse the context and it makes weird stuff in recursions.
                 _funcDeclContext.AddValueToLocalContext(name, val);
             }
 

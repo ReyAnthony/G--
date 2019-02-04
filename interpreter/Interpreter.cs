@@ -93,10 +93,6 @@ namespace Interpreter1
         
         public void AddValueToLocalContext(string name, Value val)
         {
-            // FIXME, we should be functional, but when recursing it replaces the same 
-            // TODO look why
-            if (LocalVariables.ContainsKey(name))
-                LocalVariables.Remove(name);
             LocalVariables.Add(name, val);
         }
         
@@ -181,38 +177,39 @@ namespace Interpreter1
         public void EnterExpr(ExprParser.ExprContext context)
         {
             var funcName = context.NAME().GetText();
-            var func = new ExprContext(funcName, parent: _callStack.Count > 0 ? _callStack.Peek() : null);
-            _callStack.Push(func);
+            var exprContext = new ExprContext(funcName, parent: _callStack.Count > 0 ? _callStack.Peek() : null);
+            _callStack.Push(exprContext);
             
         }
 
         public void ExitExpr(ExprParser.ExprContext context)
         {
-            var lastExprContext = _callStack.Pop();
+            var currentExpr = _callStack.Pop();
            
             if (_callStack.Count > 0)
             {
-                var stackTop = _callStack.Peek();
+                var parentExpr = _callStack.Peek();
            
-                stackTop.AddArgument(new LazyValue(() =>
+                parentExpr.AddArgument(new LazyValue(() =>
                 {
+                    //TODO the local should be first to allow for 
+                    //variable override
                     try
                     {
-                        var func = Functions[lastExprContext.FunctionName](lastExprContext);
+                        var func = Functions[currentExpr.FunctionName](currentExpr);
                         return func.Execute();
                     }
                     catch (KeyNotFoundException e)
                     {
-                        var func = lastExprContext.RetrieveFunctionFromLocalContext(lastExprContext.FunctionName)(lastExprContext);
+                        var func = currentExpr.RetrieveFunctionFromLocalContext(currentExpr.FunctionName)(currentExpr);
                         return func.Execute();
                     }
-                 
                 }));
             }
             else
             {
                 //top level can never be a local function
-                var func = Functions[lastExprContext.FunctionName](lastExprContext);
+                var func = Functions[currentExpr.FunctionName](currentExpr);
                 Console.WriteLine(func.Execute().Val);
             } 
         }
