@@ -58,12 +58,12 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="Expr.g4" />
-    <Content Include="fizzBuzz.lisp" />
-    <Content Include="moreOrLess.lisp" />
     <Content Include="README.md" />
-    <Content Include="recursion.lisp" />
-    <Content Include="scoping.lisp" />
-    <Content Include="testScript.lisp" />
+    <Content Include="scripts\fizzBuzz.lisp" />
+    <Content Include="scripts\moreOrLess.lisp" />
+    <Content Include="scripts\recursion.lisp" />
+    <Content Include="scripts\scoping.lisp" />
+    <Content Include="scripts\testScript.lisp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
