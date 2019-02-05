@@ -8,13 +8,29 @@ Features :
 - Globally scoped variables (set)
 - Function (with and without parameters)
 - Passing function (parameterless) as parameters
-- Recursion (with and without parameters) (beware of the stackoverflow...) (+ avoid using them if not tail recursive rn..)
+- Recursion (with and without parameters) (beware of the stackoverflow...)
 - Print to repl
 - Read repl 
 - Boolean logic
 - Control flow
 - Type predicates
 - Random number generation
+
+# Recursion 
+
+```
+
+(%% 
+    (function recursion count 
+        (%% 
+             (when (< (ret count) 100)
+                (%%  
+                     (print (ret count))
+                     (recursion (+ 1 (ret count)))
+                     (print (ret count)))))) 
+    (recursion 0))   
+    
+```     
 
 # A game of more or less 
 ```
@@ -40,22 +56,6 @@ Features :
     (let min 1
         (let max 100
             (game 10 (get-random-number (ret min) (ret max)) (ret min) (ret max)))))
-
-```
-
-# Broken recursion 
-
-```
-;; Right now this is BROKEN ;;
-(%% 
-    (function recursion count 
-        (%% 
-             (when (< (ret count) 100)
-                (%%  
-                     (print (ret count))
-                     (recursion (+ 1 (ret count)))
-                     (print (ret count))))))  ;; HERE, count is affected by call of the recursion because of a design flaw ;;
-    (recursion 0))    
 
 ```
 

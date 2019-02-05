@@ -558,28 +558,26 @@ namespace Interpreter1
     {
         private readonly LazyValue _codeBody;
         private readonly string _functionName;
-        private readonly ExprContext _funcDeclContext;
+        public  ExprContext FuncDeclContext { get; }
 
         public CustomFunc(ExprContext context, string funcName, LazyValue codeBody, ExprContext funcDeclContext) : base(context)
         {
             _codeBody = codeBody;
-            _funcDeclContext = funcDeclContext;
+            FuncDeclContext = funcDeclContext;
             _functionName = funcName;  
         }
         
         public override Value Execute()
         {
-            var funcArgs = _funcDeclContext.Arguments;
+            var funcArgs = FuncDeclContext.Arguments;
             if (funcArgs.Count != Context.Arguments.Count)
                 throw new WrongArgumentCount(_functionName, Context.Arguments.Count, Context.Arguments.Count);
-                
+  
             for (var i = 0; i < Context.Arguments.Count; i++)
             {
-                var name = _funcDeclContext.Arguments[i].Execute().Val;
+                var name = FuncDeclContext.Arguments[i].Execute().Val;
                 var val = Context.Arguments[i].Execute();
-                
-                //FIXME we reuse the context and it makes weird stuff in recursions.
-                _funcDeclContext.AddValueToLocalContext(name, val);
+                FuncDeclContext.AddValueToLocalContext(name, val);
             }
 
             return _codeBody.Execute();
@@ -626,7 +624,7 @@ namespace Interpreter1
             
             var functionName = Context.Arguments.First().Execute().Val;
             var func = Context.RetrieveFunctionFromLocalContext(functionName);
-            return func.Invoke(new ExprContext(functionName, Context)).Execute();
+            return func(new ExprContext(functionName, Context)).Execute();
         }
     }
 

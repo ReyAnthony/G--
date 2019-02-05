@@ -40,7 +40,7 @@ namespace Interpreter1
 
         public Value Execute()
         {
-            return _lazy.Invoke();
+            return _lazy();
         }
     }
 
@@ -62,6 +62,8 @@ namespace Interpreter1
         private Dictionary<string, Value> GlobalVariables { get; }
         private ExprContext Parent { get; }
 
+        private Stack<Dictionary<string, Value>> LocalVariablesStash_HACK { get; }
+
         public ExprContext(string functionName, ExprContext parent)
         {
             this.FunctionName = functionName;
@@ -70,8 +72,9 @@ namespace Interpreter1
             LocalVariables = new Dictionary<string, Value>();
             GlobalVariables = new Dictionary<string, Value>();
             Arguments = new List<LazyValue>();
+            LocalVariablesStash_HACK = new Stack<Dictionary<string, Value>>();
         }
-        
+
         public void AddArgument(LazyValue arg)
         {
             Arguments.Add(arg);
@@ -143,6 +146,26 @@ namespace Interpreter1
             }
             Parent.LocalFunctions.Add(name, val);
         }
+
+        public void StashLocalContext(ExprContext funcDeclContext)
+        {
+            
+            funcDeclContext.LocalVariablesStash_HACK.Push(new Dictionary<string, Value>());
+            foreach (var keyValuePair in funcDeclContext.LocalVariables)
+            {
+                funcDeclContext.LocalVariablesStash_HACK.Peek()[keyValuePair.Key] = keyValuePair.Value;
+            }
+        }
+
+        public void RevertLocalContext(ExprContext funcDeclContext)
+        {
+            funcDeclContext.LocalVariables.Clear();   
+            foreach (var keyValuePair in funcDeclContext.LocalVariablesStash_HACK.Peek())
+            {
+                funcDeclContext.LocalVariables[keyValuePair.Key] = keyValuePair.Value;
+            }
+            funcDeclContext.LocalVariablesStash_HACK.Pop();
+        }
     }
 
     public abstract class InterpreterFunc
@@ -167,9 +190,10 @@ namespace Interpreter1
 
         public Dictionary<string, Func<ExprContext,InterpreterFunc>> Functions { get; }
         private Stack<ExprContext> _callStack = new Stack<ExprContext>();
-
+        
         public Listener()
         {
+            
             Functions = 
                 new Dictionary<string, Func<ExprContext, InterpreterFunc>>
                 {
@@ -197,16 +221,13 @@ namespace Interpreter1
                     {"function", (e) => new DefineFunction(e)},
                     {"apply", (e) => new Apply(e)}
                 };
-            
-            
         }
         
         public void EnterExpr(ExprParser.ExprContext context)
         {
             var funcName = context.NAME().GetText();
-            var exprContext = new ExprContext(funcName, parent: _callStack.Count > 0 ? _callStack.Peek() : null);
-            _callStack.Push(exprContext);
-            
+            var exprContext = new ExprContext(funcName, parent: _callStack.Count > 0 ? _callStack.Peek() : null);      
+            _callStack.Push(exprContext);  
         }
 
         public void ExitExpr(ExprParser.ExprContext context)
@@ -218,7 +239,7 @@ namespace Interpreter1
                 var parentExpr = _callStack.Peek();
            
                 parentExpr.AddArgument(new LazyValue(() =>
-                {
+                { 
                     //TODO the local should be first to allow for 
                     //variable override
                     try
@@ -229,7 +250,16 @@ namespace Interpreter1
                     catch (KeyNotFoundException e)
                     {
                         var func = currentExpr.RetrieveFunctionFromLocalContext(currentExpr.FunctionName)(currentExpr);
-                        return func.Execute();
+                        Func<ExprContext, Value> a = (ExprContext exprContext) =>
+                        {
+                            // FORGIVE ME FOR MY CODE SINS
+                            var custom = func as CustomFunc;
+                            exprContext.StashLocalContext(custom.FuncDeclContext);
+                            var f = custom.Execute();
+                            exprContext.RevertLocalContext(custom.FuncDeclContext);
+                            return f;
+                        };
+                        return a(currentExpr);
                     }
                 }));
             }

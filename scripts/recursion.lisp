@@ -1,4 +1,3 @@
-;; BROKEN ;;
 (%% 
     (function recursion count 
         (%% 
