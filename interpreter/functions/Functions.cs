@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 
-namespace Interpreter1
+namespace GMinusMinus.interpreter.functions
 {
     internal class Add : InterpreterFunc
     {
@@ -307,11 +307,7 @@ namespace Interpreter1
                  a = float.Parse(arg1.Val);
                  b = float.Parse(arg2.Val);
                
-                 if (a < b)
-                 {
-                     return Value.Yes();
-                 }
-                 return Value.No();
+                 return a < b ? Value.Yes() : Value.No();
              }
              
      }
@@ -343,11 +339,7 @@ namespace Interpreter1
             a = float.Parse(arg1.Val);
             b = float.Parse(arg2.Val);
           
-            if (a > b)
-            {
-                return Value.Yes();
-            }
-            return Value.No();
+            return a > b ? Value.Yes() : Value.No();
         }
     }
 
@@ -363,11 +355,7 @@ namespace Interpreter1
             if (Context.Arguments.Count != 1)
                 throw new WrongArgumentCount(Context.FunctionName, 1, 1);
 
-            if (Context.Arguments.First().Execute().Type == Types.Falsy)
-            {
-                return Value.Yes();
-            }
-            return Value.No();
+            return Context.Arguments.First().Execute().Type == Types.Falsy ? Value.Yes() : Value.No();
         }
     }
     
@@ -426,14 +414,9 @@ namespace Interpreter1
             if (Context.Arguments.Count != 2)
                 throw new WrongArgumentCount(Context.FunctionName, 2, 2);
 
-            if (Context.Arguments.First().Execute().Type != Types.Falsy)
-            {
-                return Context.Arguments.Last().Execute();
-            }
-            else
-            {
-                return Value.No();
-            }
+            return Context.Arguments.First().Execute().Type != Types.Falsy 
+                ? Context.Arguments.Last().Execute() 
+                : Value.No();
         }
     }
     
@@ -448,11 +431,9 @@ namespace Interpreter1
             if (Context.Arguments.Count != 3)
                 throw new WrongArgumentCount("if", 3, 3);
 
-            if (Context.Arguments.First().Execute().Type != Types.Falsy)
-            {
-                return Context.Arguments[1].Execute();
-            }
-            return Context.Arguments.Last().Execute();
+            return Context.Arguments.First().Execute().Type != Types.Falsy 
+                ? Context.Arguments[1].Execute() 
+                : Context.Arguments.Last().Execute();
         }
     }
 
@@ -544,11 +525,7 @@ namespace Interpreter1
 
             var codeBodyContext = Context;
             Context.AddFunctionToLocalContext(
-                funcName.Val, 
-                (context) =>
-                {
-                    return new CustomFunc(context, funcName.Val, codeBody, codeBodyContext);
-                });
+                funcName.Val, (context) => new CustomFunc(context, funcName.Val, codeBody, codeBodyContext));
             
             return Value.Yes();
         }
@@ -558,7 +535,7 @@ namespace Interpreter1
     {
         private readonly LazyValue _codeBody;
         private readonly string _functionName;
-        public  ExprContext FuncDeclContext { get; }
+        public  ExprContext FuncDeclContext { get; private set; }
 
         public CustomFunc(ExprContext context, string funcName, LazyValue codeBody, ExprContext funcDeclContext) : base(context)
         {

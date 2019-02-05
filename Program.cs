@@ -1,16 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using GMinusMinus.interpreter;
 
-namespace Interpreter1
+namespace GMinusMinus
 {
-    internal class Program
+    internal static class Program
     {
         public static void Main(string[] args)
         {
+            // TODO bug when error in REPL, then REPL won't work anymore
             if (args.Length > 0 && File.Exists(args[0]))
             {
                 try
