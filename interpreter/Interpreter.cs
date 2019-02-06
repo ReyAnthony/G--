@@ -63,41 +63,47 @@ namespace GMinusMinus.interpreter
         public void ExitExpr(ExprParser.ExprContext context)
         {
             var currentExpr = _callStack.Pop();
-           
-            if (_callStack.Count > 0)
+            try
             {
-                var parentExpr = _callStack.Peek();
-                parentExpr.AddArgument(new LazyValue(() =>
-                { 
-                    //TODO the local should be first to allow for variable override
-                    try
+                if (_callStack.Count > 0)
+                {
+                    var parentExpr = _callStack.Peek();
+                    parentExpr.AddArgument(new LazyValue(() =>
                     {
-                        var func = Functions[currentExpr.FunctionName](currentExpr);
-                        return func.Execute();
-                    }
-                    catch (KeyNotFoundException e)
-                    {
-                        var func = currentExpr.RetrieveFunctionFromLocalContext(currentExpr.FunctionName)(currentExpr);
-                        Func<ExprContext, Value> a = exprContext =>
+                        try
                         {
-                            // FORGIVE ME FOR MY CODE SINS 
-                            // HACK for the localContext in recursions
-                            var custom = func as CustomFunc;
-                            exprContext.StashLocalContext(custom.FuncDeclContext);
-                            var funcReturn = custom.Execute();
-                            exprContext.RevertLocalContext(custom.FuncDeclContext);
-                            return funcReturn;
-                        };
-                        return a(currentExpr);
-                    }
-                }));
-            }
-            else
-            {
-                //top level can never be a local function, ne need to check
-                var func = Functions[currentExpr.FunctionName](currentExpr);
-                Console.WriteLine(func.Execute().Val);
+                            var func =
+                                currentExpr.RetrieveFunctionFromLocalContext(currentExpr.FunctionName)(currentExpr);
+                            Func<ExprContext, Value> a = exprContext =>
+                            {
+                                // FORGIVE ME FOR MY CODE SINS 
+                                // HACK for the localContext in recursions
+                                var custom = func as CustomFunc;
+                                exprContext.StashLocalContext(custom.FuncDeclContext);
+                                var funcReturn = custom.Execute();
+                                exprContext.RevertLocalContext(custom.FuncDeclContext);
+                                return funcReturn;
+                            };
+                            return a(currentExpr);
+                        }
+                        catch (UndefinedFunction e)
+                        {
+                            var func = Functions[currentExpr.FunctionName](currentExpr);
+                            return func.Execute();
+                        }
+                    }));
+                }
+                else
+                {
+                    //top level can never be a local function, ne need to check
+                    var func = Functions[currentExpr.FunctionName](currentExpr);
+                    Console.WriteLine(func.Execute().Val);
+                } 
             } 
+            catch (KeyNotFoundException ex)
+            {
+                throw new UndefinedFunction(currentExpr.FunctionName);
+            }   
         }
 
         public void EnterArgs(ExprParser.ArgsContext context)

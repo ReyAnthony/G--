@@ -39,16 +39,22 @@ namespace GMinusMinus.interpreter
             }
             catch (KeyNotFoundException ex)
             {
-                return Parent == null ? GlobalVariables[name] : Parent.RetrieveValueFromContext(name);
+                try
+                {
+                    return Parent == null ? GlobalVariables[name] : Parent.RetrieveValueFromContext(name);
+                }
+                catch (KeyNotFoundException e)
+                {
+                    throw new UndefinedVariable(name);
+                }
             }   
         }
         
         public void AddValueToLocalContext(string name, Value val)
         {
-            //Hack not to break when recursion...
-            //but SHOULD NOT BE THIS
-            //anyway, will only cause pbs in recursion because you can't 
-            //actually call it twice in the same context
+            //HACK not to break when recursion... 
+            //We use a stack to save variables in each recursive call anyway so they are not written over
+            //They are constant. 
             if (LocalVariables.ContainsKey(name))
                 LocalVariables.Remove(name);
             LocalVariables.Add(name, val);
@@ -56,6 +62,7 @@ namespace GMinusMinus.interpreter
         
         public void AddValueToGlobalContext(string name, Value val)
         {
+            //On the other hand global variables are not constant
             if (Parent == null)
             {
                 if (GlobalVariables.ContainsKey(name))

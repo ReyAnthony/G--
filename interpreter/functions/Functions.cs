@@ -12,7 +12,7 @@ namespace GMinusMinus.interpreter.functions
         public override Value Execute()
         {
             float added = 0;
-            Types returnType = Types.Int;
+            var returnType = Types.Int;
             Context.Arguments.ForEach(lazy =>
             {
                 var a = lazy.Execute();
@@ -40,13 +40,13 @@ namespace GMinusMinus.interpreter.functions
         public override Value Execute()
         {
             float subbed = 0;
-            Types returnType = Types.Int;
+            var returnType = Types.Int;
             for (var i = 0; i < Context.Arguments.Count; i++)
             {
                 var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
-                    var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
+                    var val = float.Parse(a.Val, CultureInfo.InvariantCulture);
                     if (i == 0)
                         subbed = val;
                     else
@@ -55,7 +55,7 @@ namespace GMinusMinus.interpreter.functions
                 }
                 else
                 {
-                    var val = int.Parse(a.Val.ToString());
+                    var val = int.Parse(a.Val);
                     if (i == 0)
                         subbed = val;
                     else
@@ -76,13 +76,13 @@ namespace GMinusMinus.interpreter.functions
         public override Value Execute()
         {
             float divd = 0;
-            Types returnType = Types.FloatingPoint;
+            const Types returnType = Types.FloatingPoint;
             for (var i = 0; i < Context.Arguments.Count; i++)
             {
                 var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
-                    var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
+                    var val = float.Parse(a.Val, CultureInfo.InvariantCulture);
                     if (i == 0)
                         divd = val;
                     else
@@ -90,7 +90,7 @@ namespace GMinusMinus.interpreter.functions
                 }
                 else
                 {
-                    var val = int.Parse(a.Val.ToString());
+                    var val = int.Parse(a.Val);
                     if (i == 0)
                         divd = val;
                     else
@@ -111,13 +111,13 @@ namespace GMinusMinus.interpreter.functions
         public override Value Execute()
         {
             float divd = 0;
-            Types returnType = Types.FloatingPoint;
+            const Types returnType = Types.FloatingPoint;
             for (var i = 0; i < Context.Arguments.Count; i++)
             {
                 var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
-                    var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
+                    var val = float.Parse(a.Val, CultureInfo.InvariantCulture);
                     if (i == 0)
                         divd = val;
                     else
@@ -125,7 +125,7 @@ namespace GMinusMinus.interpreter.functions
                 }
                 else
                 {
-                    var val = int.Parse(a.Val.ToString());
+                    var val = int.Parse(a.Val);
                     if (i == 0)
                         divd = val;
                     else
@@ -146,13 +146,13 @@ namespace GMinusMinus.interpreter.functions
         public override Value Execute()
         {
             float mult = 0;
-            Types returnType = Types.FloatingPoint;
+            const Types returnType = Types.FloatingPoint;
             for (var i = 0; i < Context.Arguments.Count; i++)
             {
                 var a = Context.Arguments[i].Execute();
                 if (a.Type == Types.FloatingPoint)
                 {
-                    var val = float.Parse(a.Val.ToString(), CultureInfo.InvariantCulture);
+                    var val = float.Parse(a.Val, CultureInfo.InvariantCulture);
                     if (i == 0)
                         mult = val;
                     else
@@ -160,7 +160,7 @@ namespace GMinusMinus.interpreter.functions
                 }
                 else
                 {
-                    var val = int.Parse(a.Val.ToString());
+                    var val = int.Parse(a.Val);
                     if (i == 0)
                         mult = val;
                     else
@@ -183,7 +183,7 @@ namespace GMinusMinus.interpreter.functions
             if (Context.Arguments.Count == 0)
                 throw new WrongArgumentCount(Context.FunctionName, 1);
 
-            Context.Arguments.GetRange(0, Context.Arguments.Count - 1).ForEach((a) => a.Execute());
+            Context.Arguments.GetRange(0, Context.Arguments.Count - 1).ForEach(a => a.Execute());
             return Context.Arguments.Last().Execute();
         }
     }
@@ -220,8 +220,11 @@ namespace GMinusMinus.interpreter.functions
                 last = argument;
             }
 
-            Console.WriteLine(fullStr.Replace("\"", string.Empty));
-            return last;
+            if (last != null)
+            {
+                Console.WriteLine(fullStr.Replace("\"", string.Empty));
+            }
+            return last ?? Value.No();
         }
     }
 
@@ -301,11 +304,9 @@ namespace GMinusMinus.interpreter.functions
                  {
                      throw new WrongType(Context.FunctionName, "", Types.Int, Types.FloatingPoint);
                  }
-     
-                 float a = 0;
-                 float b = 0;
-                 a = float.Parse(arg1.Val);
-                 b = float.Parse(arg2.Val);
+                 
+                 var a = float.Parse(arg1.Val);
+                 var b = float.Parse(arg2.Val);
                
                  return a < b ? Value.Yes() : Value.No();
              }
@@ -334,10 +335,8 @@ namespace GMinusMinus.interpreter.functions
                 throw new WrongType(Context.FunctionName, "", Types.Int, Types.FloatingPoint);
             }
 
-            float a = 0;
-            float b = 0;
-            a = float.Parse(arg1.Val);
-            b = float.Parse(arg2.Val);
+            var a = float.Parse(arg1.Val);
+            var b = float.Parse(arg2.Val);
           
             return a > b ? Value.Yes() : Value.No();
         }
