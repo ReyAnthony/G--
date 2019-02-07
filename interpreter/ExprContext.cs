@@ -17,7 +17,7 @@ namespace GMinusMinus.interpreter
 
         public ExprContext(string functionName, ExprContext parent)
         {
-            this.FunctionName = functionName;
+            FunctionName = functionName;
             Parent = parent;
             LocalFunctions = new Dictionary<string, Func<ExprContext, InterpreterFunc>>();
             LocalVariables = new Dictionary<string, Value>();
@@ -37,13 +37,13 @@ namespace GMinusMinus.interpreter
             {
                 return LocalVariables[name];
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 try
                 {
                     return Parent == null ? GlobalVariables[name] : Parent.RetrieveValueFromContext(name);
                 }
-                catch (KeyNotFoundException e)
+                catch (KeyNotFoundException)
                 {
                     throw new UndefinedVariable(name);
                 }
@@ -81,7 +81,7 @@ namespace GMinusMinus.interpreter
             {
                 return LocalFunctions[name];
             }
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 if (Parent == null)
                 {
@@ -95,7 +95,7 @@ namespace GMinusMinus.interpreter
         {
             if (Parent == null)
             {
-                throw new Exception("TODO should not define functions at toplevel");
+                throw new TopLevelFunctionDeclaration();
             }
             Parent.LocalFunctions.Add(name, val);
         }

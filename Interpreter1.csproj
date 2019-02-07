@@ -64,6 +64,7 @@
     <Content Include=".gitignore" />
     <Content Include="Expr.g4" />
     <Content Include="README.md" />
+    <Content Include="scripts\factorielle.lisp" />
     <Content Include="scripts\fizzBuzz.lisp" />
     <Content Include="scripts\moreOrLess.lisp" />
     <Content Include="scripts\recursion.lisp" />

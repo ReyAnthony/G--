@@ -275,11 +275,8 @@ namespace GMinusMinus.interpreter.functions
             if (Context.Arguments.Count != 2)
                 throw new WrongArgumentCount(Context.FunctionName, 2, 2);
 
-            if (Context.Arguments.First().Execute().Val.Equals(Context.Arguments.Last().Execute().Val))
-            {
-                return Value.Yes();
-            }
-            return Value.No();
+            return Context.Arguments.First().Execute().Val
+                          .Equals(Context.Arguments.Last().Execute().Val) ? Value.Yes() : Value.No();
         }
     }
     
@@ -309,8 +306,7 @@ namespace GMinusMinus.interpreter.functions
                  var b = float.Parse(arg2.Val);
                
                  return a < b ? Value.Yes() : Value.No();
-             }
-             
+             }   
      }
     
     internal class More : InterpreterFunc
@@ -473,12 +469,12 @@ namespace GMinusMinus.interpreter.functions
             if (Context.Arguments.First().Execute().Type != Types.Name)
                 throw new WrongType(Context.FunctionName, "first argument should be a Name", Types.Name);
 
+            var value = Context.Arguments[1].Execute();
             Context
                 .AddValueToGlobalContext(
-                    Context.Arguments.First().Execute().Val, 
-                    Context.Arguments[1].Execute());
+                    Context.Arguments.First().Execute().Val, value);
             
-            return Value.Yes();
+            return value;
         }
     }
     
@@ -526,7 +522,7 @@ namespace GMinusMinus.interpreter.functions
             Context.AddFunctionToLocalContext(
                 funcName.Val, (context) => new CustomFunc(context, funcName.Val, codeBody, codeBodyContext));
             
-            return Value.Yes();
+            return new Value(funcName.Val, Types.Name);
         }
     }
 

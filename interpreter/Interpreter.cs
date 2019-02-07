@@ -23,7 +23,6 @@ namespace GMinusMinus.interpreter
         
         public Listener()
         {
-            
             Functions = 
                 new Dictionary<string, Func<ExprContext, InterpreterFunc>>
                 {
@@ -36,6 +35,8 @@ namespace GMinusMinus.interpreter
                     {"<", e => new Less(e)},
                     {">", e => new More(e)},
                     {"==", e => new Eq(e)},
+                    {"and", e => new And(e)},
+                    {"or", e => new Or(e)},
                     {"typeof", e => new TypeOf(e)},
                     {"not", e => new Not(e)},
                     {"when", e => new When(e)},
@@ -45,8 +46,6 @@ namespace GMinusMinus.interpreter
                     {"ret", e => new Retrieve(e)},
                     {"print", e => new Print(e)},
                     {"read", e => new Read(e)},
-                    {"and", e => new And(e)},
-                    {"or", e => new Or(e)},
                     {"random", e => new Random(e)},  
                     {"function", e => new DefineFunction(e)},
                     {"apply", e => new Apply(e)}
@@ -72,13 +71,11 @@ namespace GMinusMinus.interpreter
                     {
                         try
                         {
-                            var func =
-                                currentExpr.RetrieveFunctionFromLocalContext(currentExpr.FunctionName)(currentExpr);
+                            var func = currentExpr.RetrieveFunctionFromLocalContext(currentExpr.FunctionName)(currentExpr);
                             Func<ExprContext, Value> a = exprContext =>
                             {
-                                // FORGIVE ME FOR MY CODE SINS 
                                 // HACK for the localContext in recursions
-                                var custom = func as CustomFunc;
+                                var custom = (CustomFunc) func;
                                 exprContext.StashLocalContext(custom.FuncDeclContext);
                                 var funcReturn = custom.Execute();
                                 exprContext.RevertLocalContext(custom.FuncDeclContext);
@@ -86,7 +83,7 @@ namespace GMinusMinus.interpreter
                             };
                             return a(currentExpr);
                         }
-                        catch (UndefinedFunction e)
+                        catch (UndefinedFunction)
                         {
                             var func = Functions[currentExpr.FunctionName](currentExpr);
                             return func.Execute();
@@ -100,7 +97,7 @@ namespace GMinusMinus.interpreter
                     Console.WriteLine(func.Execute().Val);
                 } 
             } 
-            catch (KeyNotFoundException ex)
+            catch (KeyNotFoundException)
             {
                 throw new UndefinedFunction(currentExpr.FunctionName);
             }   
@@ -108,27 +105,27 @@ namespace GMinusMinus.interpreter
 
         public void EnterArgs(ExprParser.ArgsContext context)
         {
-            var func = _callStack.Peek();
+            var currentExpr = _callStack.Peek();
             
             if (context.INT() != null)
             {
-                func.AddArgument(new LazyValue(() => new Value(context.INT().GetText(), Types.Int)));
+                currentExpr.AddArgument(new LazyValue(() => new Value(context.INT().GetText(), Types.Int)));
             }
             else if (context.FLOATING() != null)
             {
-                func.AddArgument(new LazyValue(() => new Value(context.FLOATING().GetText(), Types.FloatingPoint)));
+                currentExpr.AddArgument(new LazyValue(() => new Value(context.FLOATING().GetText(), Types.FloatingPoint)));
             }
             else if (context.STRING() != null)
             {
-                func.AddArgument(new LazyValue(() => new Value(context.STRING().GetText(), Types.String)));
+                currentExpr.AddArgument(new LazyValue(() => new Value(context.STRING().GetText(), Types.String)));
             }
             else if (context.NAME() != null)
             {
-                func.AddArgument(new LazyValue(() => new Value(context.NAME().GetText(), Types.Name)));
+                currentExpr.AddArgument(new LazyValue(() => new Value(context.NAME().GetText(), Types.Name)));
             }
             else if (context.FALSY() != null)
             {
-                func.AddArgument(new LazyValue(() => new Value(context.FALSY().GetText(), Types.Falsy)));
+                currentExpr.AddArgument(new LazyValue(() => new Value(context.FALSY().GetText(), Types.Falsy)));
             }
         }
 

@@ -7,28 +7,34 @@ using GMinusMinus.interpreter;
 namespace GMinusMinus
 {
     internal static class Program
-    {
+    { 
+        private static void Parse(string line)
+        {
+            var stream = CharStreams.fromstring(line);
+            var lexer = new ExprLexer(stream);
+            var tokens = new CommonTokenStream(lexer);
+            var parser = new ExprParser(tokens) {BuildParseTree = true};
+            IParseTree tree = parser.prog();
+            ParseTreeWalker.Default.Walk(new Listener(), tree);  
+        }
+        
         public static void Main(string[] args)
         {
-            // TODO bug when error in REPL, then REPL won't work anymore
             if (args.Length > 0 && File.Exists(args[0]))
             {
                 try
                 {
                     var text = File.ReadAllText(args[0]);
-                    var stream = CharStreams.fromstring(text);
-                    var lexer = new ExprLexer(stream);
-                    var tokens = new CommonTokenStream(lexer);
-                    var parser = new ExprParser(tokens) {BuildParseTree = true};
-                    IParseTree tree = parser.prog();
-                    ParseTreeWalker.Default.Walk(new Listener(), tree); 
+                    Parse(text);  
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-             
-                Console.WriteLine("Back to the REPL");
+                finally
+                {
+                    Console.WriteLine("Back to the REPL");
+                }
                 Console.ReadLine();
             }
             
@@ -37,12 +43,7 @@ namespace GMinusMinus
             {
                 try
                 {
-                    var stream = CharStreams.fromstring(line);
-                    var lexer = new ExprLexer(stream);
-                    var tokens = new CommonTokenStream(lexer);
-                    var parser = new ExprParser(tokens) {BuildParseTree = true};
-                    IParseTree tree = parser.prog();
-                    ParseTreeWalker.Default.Walk(new Listener(), tree);  
+                    Parse(line);
                 }
                 catch (Exception ex)
                 {

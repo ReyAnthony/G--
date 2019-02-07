@@ -1,9 +1,9 @@
-(%% 
-    (function recursion count 
+(%%    
+    (function recursion count max 
         (%% 
-             (when (< (ret count) 100)
+             (when (< (ret count) (ret max))
                 (%%  
                      (print (ret count))
-                     (recursion (+ 1 (ret count)))
-                     (print (ret count)))))) 
-    (recursion 0))       
+                     (recursion (+ 1 (ret count)) (ret max))
+                     (print (ret count))))))
+    (recursion 0 100))

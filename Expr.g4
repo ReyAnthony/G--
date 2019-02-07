@@ -1,5 +1,5 @@
 grammar Expr;		
-prog:  expr;	
+prog:  expr EOF;	
 expr:  LPAR NAME args* RPAR;
 args:  INT | FLOATING | NAME | STRING | FALSY | expr;
 

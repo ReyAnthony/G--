@@ -38,4 +38,11 @@ namespace GMinusMinus.interpreter
         {
         }
     }
+    
+    internal class TopLevelFunctionDeclaration : Exception
+    {
+        public TopLevelFunctionDeclaration() : base("A function cannot be defined at the toplevel.")
+        {       
+        }
+    }
 }
