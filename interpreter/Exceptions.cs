@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace GMinusMinus.interpreter
 {
-    internal class UndefinedFunction : Exception
+    class UndefinedFunction : Exception
     {
         public UndefinedFunction(string name) : base(string.Format("The function '{0}' is undefined.", name))
         {
@@ -11,7 +11,7 @@ namespace GMinusMinus.interpreter
         }
     }
     
-    internal class UndefinedVariable : Exception
+    class UndefinedVariable : Exception
     {
         public UndefinedVariable(string name) : base(string.Format("The variable '{0}' is undefined.", name))
         {
@@ -19,7 +19,7 @@ namespace GMinusMinus.interpreter
         }
     }
     
-    internal class WrongArgumentCount : Exception
+    class WrongArgumentCount : Exception
     {
         public WrongArgumentCount(string funcName, int minArgs, int maxArgs = Int32.MaxValue) 
             : base(string.Format("'{0}' must have at least {1} argument(s) and at most {2} argument(s)", funcName,
@@ -28,7 +28,7 @@ namespace GMinusMinus.interpreter
         }
     }
     
-    internal class WrongType : Exception
+    class WrongType : Exception
     {
         public WrongType(string funcName, string msg = "", params Types[] excpectedTypes) 
             : base(string.Format("{0} needs ", funcName) +
@@ -39,7 +39,7 @@ namespace GMinusMinus.interpreter
         }
     }
     
-    internal class TopLevelFunctionDeclaration : Exception
+    class TopLevelFunctionDeclaration : Exception
     {
         public TopLevelFunctionDeclaration() : base("A function cannot be defined at the toplevel.")
         {       

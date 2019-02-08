@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.0.0
 MinimumVisualStudioVersion = 10.0.0.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interpreter1", "Interpreter1.csproj", "{EE1A5E4B-C797-4185-A5AC-39E87CB257D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GmmCore", "GmmCore.csproj", "{EE1A5E4B-C797-4185-A5AC-39E87CB257D3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gmm", "Gmm\Gmm.csproj", "{5CE8E5D0-45D1-4B2B-9427-9C0B0F6683BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{EE1A5E4B-C797-4185-A5AC-39E87CB257D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE1A5E4B-C797-4185-A5AC-39E87CB257D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE1A5E4B-C797-4185-A5AC-39E87CB257D3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CE8E5D0-45D1-4B2B-9427-9C0B0F6683BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CE8E5D0-45D1-4B2B-9427-9C0B0F6683BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CE8E5D0-45D1-4B2B-9427-9C0B0F6683BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CE8E5D0-45D1-4B2B-9427-9C0B0F6683BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
