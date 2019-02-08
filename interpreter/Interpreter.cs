@@ -21,35 +21,9 @@ namespace GMinusMinus.interpreter
         private Dictionary<string, Func<ExprContext,InterpreterFunc>> Functions { get; set; }
         private readonly Stack<ExprContext> _callStack = new Stack<ExprContext>();
         
-        public Listener()
+        public Listener(Dictionary<string, Func<ExprContext, InterpreterFunc>> functions)
         {
-            Functions = 
-                new Dictionary<string, Func<ExprContext, InterpreterFunc>>
-                {
-                    {"%%", e => new StatementsGroup(e)},
-                    {"+", e => new Add(e)},
-                    {"-", e => new Sub(e)},
-                    {"/", e => new Div(e)},
-                    {"%", e => new Mod(e)},
-                    {"*", e => new Mult(e)},
-                    {"<", e => new Less(e)},
-                    {">", e => new More(e)},
-                    {"==", e => new Eq(e)},
-                    {"and", e => new And(e)},
-                    {"or", e => new Or(e)},
-                    {"typeof", e => new TypeOf(e)},
-                    {"not", e => new Not(e)},
-                    {"when", e => new When(e)},
-                    {"if", e => new If(e)},
-                    {"let", e => new Let(e)},
-                    {"set", e => new Set(e)},
-                    {"ret", e => new Retrieve(e)},
-                    {"print", e => new Print(e)},
-                    {"read", e => new Read(e)},
-                    {"random", e => new Random(e)},  
-                    {"function", e => new DefineFunction(e)},
-                    {"apply", e => new Apply(e)}
-                };
+            Functions = functions;
         }
         
         public void EnterExpr(ExprParser.ExprContext context)
