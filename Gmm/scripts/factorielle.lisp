@@ -4,4 +4,4 @@
             1
             (* (ret n) (fact (- (ret n) 1)))))
     
-    (fact 5))
+    (print (fact 5)))

@@ -6,10 +6,20 @@ namespace GMinusMinus.interpreter.functions
 {
     internal class Add : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public Add(ExprContext context) : base(context)
         {}
-        
-        public override Value Execute()
+
+        protected override Value ExecuteImpl()
         {
             float added = 0;
             var returnType = Types.Int;
@@ -33,11 +43,20 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Sub : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
         public Sub(ExprContext context) : base(context)
         {
         }
-        
-        public override Value Execute()
+
+        protected override Value ExecuteImpl()
         {
             float subbed = 0;
             var returnType = Types.Int;
@@ -69,11 +88,21 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Div : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public Div(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
             float divd = 0;
             const Types returnType = Types.FloatingPoint;
@@ -104,11 +133,21 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Mod : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public Mod(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
             float divd = 0;
             const Types returnType = Types.FloatingPoint;
@@ -139,11 +178,21 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Mult : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public Mult(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
             float mult = 0;
             const Types returnType = Types.FloatingPoint;
@@ -174,15 +223,22 @@ namespace GMinusMinus.interpreter.functions
 
     internal class StatementsGroup : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public StatementsGroup(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count == 0)
-                throw new WrongArgumentCount(Context.FunctionName, 1);
-
             Context.Arguments.GetRange(0, Context.Arguments.Count - 1).ForEach(a => a.Execute());
             return Context.Arguments.Last().Execute();
         }
@@ -190,15 +246,22 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Print : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public Print(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count < 1)
-                throw new WrongArgumentCount("ExprContext.FunctionName", 1);
-
             var fullStr = "";
             Value last = null;
             foreach (var lazy in Context.Arguments)
@@ -230,15 +293,22 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Read : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 0; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 0; }
+        }
+        
         public Read(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 0)
-                throw new WrongArgumentCount(Context.FunctionName, 0, 0);
-
             var read = Console.ReadLine();
             // HACK pseudo flush for repl
             if (read == string.Empty)
@@ -251,30 +321,44 @@ namespace GMinusMinus.interpreter.functions
 
     internal class TypeOf : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 1; }
+        }
+        
         public TypeOf(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
-        {
-            if (Context.Arguments.Count != 1)
-                throw new WrongArgumentCount(Context.FunctionName, 1, 1);
-
+        protected override Value ExecuteImpl()
+        { 
             return new Value(Context.Arguments.First().Execute().Type.ToString(), Types.String);
         }
     }
 
     internal class Eq : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public Eq(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-
             return Context.Arguments.First().Execute().Val
                           .Equals(Context.Arguments.Last().Execute().Val) ? Value.Yes() : Value.No();
         }
@@ -282,44 +366,59 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Less : InterpreterFunc
      {
-             public Less(ExprContext context) : base(context)
+         
+         public override int MinArgs
+         {
+             get { return 2; }
+         }
+
+         public override int MaxArgs
+         {
+             get { return 2; }
+         }
+         
+         public Less(ExprContext context) : base(context)
+         {
+         }
+ 
+         protected override Value ExecuteImpl()
+         {
+             var arg1 = Context.Arguments.First().Execute();
+             var arg2 = Context.Arguments.Last().Execute();
+             
+             if (arg1.Type != Types.Int && 
+                 arg1.Type != Types.FloatingPoint && 
+                 arg2.Type != Types.FloatingPoint &&
+                 arg2.Type != Types.Int)
              {
+                 throw new WrongType(Context.FunctionName, "", Types.Int, Types.FloatingPoint);
              }
-     
-             public override Value Execute()
-             {
-                 if (Context.Arguments.Count != 2)
-                     throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-     
-                 var arg1 = Context.Arguments.First().Execute();
-                 var arg2 = Context.Arguments.Last().Execute();
-                 
-                 if (arg1.Type != Types.Int && 
-                     arg1.Type != Types.FloatingPoint && 
-                     arg2.Type != Types.FloatingPoint &&
-                     arg2.Type != Types.Int)
-                 {
-                     throw new WrongType(Context.FunctionName, "", Types.Int, Types.FloatingPoint);
-                 }
-                 
-                 var a = float.Parse(arg1.Val);
-                 var b = float.Parse(arg2.Val);
-               
-                 return a < b ? Value.Yes() : Value.No();
-             }   
+             
+             var a = float.Parse(arg1.Val);
+             var b = float.Parse(arg2.Val);
+           
+             return a < b ? Value.Yes() : Value.No();
+         }   
      }
     
     internal class More : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public More(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-            
             var arg1 = Context.Arguments.First().Execute();
             var arg2 = Context.Arguments.Last().Execute();
                  
@@ -341,30 +440,44 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Not : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 1; }
+        }
+        
         public Not(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 1)
-                throw new WrongArgumentCount(Context.FunctionName, 1, 1);
-
             return Context.Arguments.First().Execute().Type == Types.Falsy ? Value.Yes() : Value.No();
         }
     }
     
     internal class And : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public And(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-
             var a = Context.Arguments.First().Execute().Type != Types.Falsy;
             var b = Context.Arguments.Last().Execute().Type != Types.Falsy;
             
@@ -378,15 +491,22 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Or : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public Or(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-
             var a = Context.Arguments.First().Execute().Type != Types.Falsy;
             var b = Context.Arguments.Last().Execute().Type != Types.Falsy;
             
@@ -400,15 +520,22 @@ namespace GMinusMinus.interpreter.functions
 
     internal class When : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public When(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-
             return Context.Arguments.First().Execute().Type != Types.Falsy 
                 ? Context.Arguments.Last().Execute() 
                 : Value.No();
@@ -417,15 +544,22 @@ namespace GMinusMinus.interpreter.functions
     
     internal class If : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 3; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 3; }
+        }
+        
         public If(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 3)
-                throw new WrongArgumentCount("if", 3, 3);
-
             return Context.Arguments.First().Execute().Type != Types.Falsy 
                 ? Context.Arguments[1].Execute() 
                 : Context.Arguments.Last().Execute();
@@ -434,15 +568,22 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Let : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 3; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 3; }
+        }
+        
         public Let(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 3)
-                throw new WrongArgumentCount(Context.FunctionName, 3, 3);
-
             if (Context.Arguments.First().Execute().Type != Types.Name)
                 throw new WrongType(Context.FunctionName, "first argument should be a Name", Types.Name);
 
@@ -457,15 +598,22 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Set : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public Set(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-
             if (Context.Arguments.First().Execute().Type != Types.Name)
                 throw new WrongType(Context.FunctionName, "first argument should be a Name", Types.Name);
 
@@ -481,15 +629,22 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Retrieve : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 1; }
+        }
+        
         public Retrieve(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 1)
-                throw new WrongArgumentCount(Context.FunctionName, 1, 1);
-
             var value = Context.Arguments.First().Execute();
             if (value.Type != Types.Name)
                 throw new WrongType(Context.FunctionName, " argument should be a Name", Types.Name);
@@ -500,11 +655,21 @@ namespace GMinusMinus.interpreter.functions
 
     internal class DefineFunction : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public DefineFunction(ExprContext context) : base(context)
         {
         }
 
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
             if (Context.Arguments.Count < 2)
                 throw new WrongArgumentCount(Context.FunctionName, 2);
@@ -528,6 +693,16 @@ namespace GMinusMinus.interpreter.functions
 
     internal class CustomFunc : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 0; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         private readonly LazyValue _codeBody;
         private readonly string _functionName;
         public  ExprContext FuncDeclContext { get; private set; }
@@ -539,7 +714,7 @@ namespace GMinusMinus.interpreter.functions
             _functionName = funcName;  
         }
         
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
             var funcArgs = FuncDeclContext.Arguments;
             if (funcArgs.Count != Context.Arguments.Count)
@@ -558,15 +733,22 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Random : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 2; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return 2; }
+        }
+        
         public Random(ExprContext context) : base(context)
         {
         }
         
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
-            if (Context.Arguments.Count != 2)
-                throw new WrongArgumentCount(Context.FunctionName, 2, 2);
-            
             var arg1 = Context.Arguments.First().Execute();
             var arg2 = Context.Arguments.Last().Execute();
                  
@@ -585,11 +767,21 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Apply : InterpreterFunc
     {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
+
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
         public Apply(ExprContext context) : base(context)
         {
         }
         
-        public override Value Execute()
+        protected override Value ExecuteImpl()
         {
             if (Context.Arguments.Count < 1)
                 throw new WrongArgumentCount(Context.FunctionName, 1);
