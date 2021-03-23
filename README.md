@@ -16,6 +16,43 @@ Features :
 - Type predicates
 - Random number generation
 
+
+# Sample usage in Morstairs 
+
+```
+(%% 
+    (translate-set-prefix "INN")
+    (set inn-cost 5)
+
+    (function bye 
+        (say MERCHANT "See ya !" "Inn/bye"))
+
+     (function sleep
+            (if (team-close)
+                 (%%
+                     (say-audio "Inn/5gp")
+                     (choices MERCHANT (cc "It will cost you " (ret inn-cost) " GP.")
+                       (choice "Sleep"
+                                   (if (team-has-enough-cash (ret inn-cost))
+                                        (%%
+                                            (say MERCHANT "Here's the key, have a good sleep !" "Inn/key")
+                                            (dialog-event (sleep-event (ret inn-cost) "InnSleepMarker")))
+                                        (%% 
+                                            (say MERCHANT "But, where's the money !!" "Inn/nocash"))))
+                       (choice "No thanks" (bye))))
+                   (%%
+                        (say MERCHANT "Your group is too scattered.." "Inn/moulin"))))	  
+
+    (dialog 
+        (protagonists (protagonist MERCHANT (get-target-name)))
+        (messages
+			(say MERCHANT "Heya !" "Inn/hey")
+			 (say-audio "Inn/bon vent")
+             (choices MERCHANT "Whatcha want ?" 
+				(choice "Sleep" (sleep))
+				(choice "Nothing" (bye))))))		
+```
+
 # Recursion 
 
 ```
