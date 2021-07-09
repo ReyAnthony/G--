@@ -5,7 +5,7 @@ namespace GMinusMinus.interpreter
 {
     public class UndefinedFunction : Exception
     {
-        public UndefinedFunction(string name) : base(string.Format("The function '{0}' is undefined.", name))
+        public UndefinedFunction(string name, int line, int col) : base(string.Format("The function '{0}' is undefined. @ {1}:{2}", name, line, col))
         {
             
         }

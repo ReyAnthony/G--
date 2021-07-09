@@ -85,7 +85,7 @@ namespace GMinusMinus.interpreter
             {
                 if (Parent == null)
                 {
-                    throw new UndefinedFunction(name);
+                    throw new KeyNotFoundException(name);
                 }
                 return Parent.RetrieveFunctionFromLocalContext(name);
             }          

@@ -20,7 +20,10 @@ namespace GMinusMinus.interpreter
     {
         private Dictionary<string, Func<ExprContext,InterpreterFunc>> Functions { get; set; }
         private readonly Stack<ExprContext> _callStack = new Stack<ExprContext>();
-        
+        private string _lastCalledFunc;
+        private int _line;
+        private int _column;
+
         public Listener(Dictionary<string, Func<ExprContext, InterpreterFunc>> functions)
         {
             Functions = functions;
@@ -57,9 +60,13 @@ namespace GMinusMinus.interpreter
                             };
                             return a(currentExpr);
                         }
-                        catch (UndefinedFunction)
+                        catch (KeyNotFoundException ex)
                         {
-                            var func = Functions[currentExpr.FunctionName](currentExpr);
+                            //find it in global context then
+                            _lastCalledFunc = currentExpr.FunctionName;
+                            _line = context.Start.Line;
+                            _column = context.Start.Column;
+                            var func = Functions[_lastCalledFunc](currentExpr);
                             return func.Execute();
                         }
                     }));
@@ -67,13 +74,16 @@ namespace GMinusMinus.interpreter
                 else
                 {
                     //top level can never be a local function, ne need to check
-                    var func = Functions[currentExpr.FunctionName](currentExpr);
+                    _lastCalledFunc = currentExpr.FunctionName;
+                    _line = context.Start.Line;
+                    _column = context.Start.Column;
+                    var func = Functions[_lastCalledFunc](currentExpr);
                     Console.WriteLine(func.Execute().Val);
                 } 
             } 
-            catch (KeyNotFoundException)
+            catch (KeyNotFoundException ex)
             {
-                throw new UndefinedFunction(currentExpr.FunctionName);
+                throw new UndefinedFunction(_lastCalledFunc, _line, _column);
             }   
         }
 
