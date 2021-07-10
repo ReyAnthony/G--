@@ -57,6 +57,7 @@ namespace GMinusMinus
         {
             var stream = CharStreams.fromstring(expr);
             var lexer = new ExprLexer(stream);
+
             var tokens = new CommonTokenStream(lexer);
             var parser = new ExprParser(tokens) {BuildParseTree = true};
             IParseTree tree = parser.prog();

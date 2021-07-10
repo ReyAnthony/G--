@@ -20,9 +20,6 @@ namespace GMinusMinus.interpreter
     {
         private Dictionary<string, Func<ExprContext,InterpreterFunc>> Functions { get; set; }
         private readonly Stack<ExprContext> _callStack = new Stack<ExprContext>();
-        private string _lastCalledFunc;
-        private int _line;
-        private int _column;
 
         public Listener(Dictionary<string, Func<ExprContext, InterpreterFunc>> functions)
         {
@@ -63,27 +60,42 @@ namespace GMinusMinus.interpreter
                         catch (KeyNotFoundException ex)
                         {
                             //find it in global context then
-                            _lastCalledFunc = currentExpr.FunctionName;
-                            _line = context.Start.Line;
-                            _column = context.Start.Column;
-                            var func = Functions[_lastCalledFunc](currentExpr);
-                            return func.Execute();
+                            var lastCalledFunc = currentExpr.FunctionName;
+                            var line = context.Start.Line;
+                            var column = context.Start.Column;
+                            try
+                            {
+                                var func = Functions[lastCalledFunc](currentExpr);
+                                return func.Execute();
+                            }
+                            catch (KeyNotFoundException _)
+                            {
+                                throw new UndefinedFunction(lastCalledFunc, line, column);
+                            }
                         }
                     }));
                 }
                 else
                 {
                     //top level can never be a local function, ne need to check
-                    _lastCalledFunc = currentExpr.FunctionName;
-                    _line = context.Start.Line;
-                    _column = context.Start.Column;
-                    var func = Functions[_lastCalledFunc](currentExpr);
-                    Console.WriteLine(func.Execute().Val);
+                    var lastCalledFunc = currentExpr.FunctionName;
+                    var line = context.Start.Line;
+                    var column = context.Start.Column;
+                    try
+                    {
+                        var func = Functions[lastCalledFunc](currentExpr);
+                        Console.WriteLine(func.Execute().Val);
+                    }
+                    catch (KeyNotFoundException _)
+                    {
+                        throw new UndefinedFunction(lastCalledFunc, line, column);
+                    }
+                   
                 } 
             } 
-            catch (KeyNotFoundException ex)
+            catch (UndefinedFunction ex)
             {
-                throw new UndefinedFunction(_lastCalledFunc, _line, _column);
+                throw new UndefinedFunction(ex.Name, ex.Line, ex.Col);
             }   
         }
 

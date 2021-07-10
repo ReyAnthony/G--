@@ -7,8 +7,16 @@ namespace GMinusMinus.interpreter
     {
         public UndefinedFunction(string name, int line, int col) : base(string.Format("The function '{0}' is undefined. @ {1}:{2}", name, line, col))
         {
-            
+            Name = name;
+            Line = line;
+            Col = col;
         }
+
+        public string Name { get; private set; }
+
+        public int Line { get; private set; }
+
+        public int Col { get; private set; }
     }
     
     public class UndefinedVariable : Exception
