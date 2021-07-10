@@ -54,6 +54,11 @@
   <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Antlr4.Runtime.Standard, Version=4.7.2.0, Culture=neutral, PublicKeyToken=e78b2c5abd1fcb3f">
+      <HintPath>..\packages\Antlr4.Runtime.Standard.4.7.2\lib\net35\Antlr4.Runtime.Standard.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.

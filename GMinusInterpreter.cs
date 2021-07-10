@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.SymbolStore;
+using System.IO;
 using System.Linq;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
@@ -12,6 +15,7 @@ namespace GMinusMinus
     public class GMinusInterpreter
     {
         private readonly Dictionary<string, Func<ExprContext, InterpreterFunc>> _functions;
+        private IAntlrErrorListener<IToken> _customErrorListener;
 
         public GMinusInterpreter(Dictionary<string, Func<ExprContext, InterpreterFunc>> functions)
         {
@@ -53,13 +57,24 @@ namespace GMinusMinus
 
         public GMinusInterpreter() : this(null) {}
 
+        public void SetCustomErrorListener(IAntlrErrorListener<IToken> listener)
+        {
+            _customErrorListener = listener;
+        }
+
         public void Eval(string expr)
         {
             var stream = CharStreams.fromstring(expr);
             var lexer = new ExprLexer(stream);
-
             var tokens = new CommonTokenStream(lexer);
             var parser = new ExprParser(tokens) {BuildParseTree = true};
+            
+            if (_customErrorListener != null)
+            {
+                parser.RemoveErrorListeners();
+                parser.AddErrorListener(_customErrorListener);
+            }
+            
             IParseTree tree = parser.prog();
             ParseTreeWalker.Default.Walk(new Listener(_functions), tree);  
         }
