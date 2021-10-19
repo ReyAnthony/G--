@@ -96,7 +96,7 @@ Features :
 
 ```
 
-# The meanest fizzBuzz test ever (you have to implement an interpreter THEN solve fizzBuzz lmao) :
+# The meanest fizzBuzz test ever (If you ever ask me FizzBuzz for a job interview, I WILL WALK OUT OF IT) :
 ```
 (%%   
     (function isFizz num 
