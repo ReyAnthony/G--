@@ -1,6 +1,10 @@
 # G--
 Craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
-(Please don't insult me if I don't respect lisp principles, that's not the goal.)
+The goal was not to write a "real" Lisp
+
+The interpreter has 1 main problem : 
+- It kinda handles everything as Strings .. 
+ 
 
 Features : 
 
@@ -15,6 +19,7 @@ Features :
 - Control flow
 - Type predicates
 - Random number generation
+- Lambdas
 
 
 # Sample usage in Morstairs 
@@ -96,7 +101,7 @@ Features :
 
 ```
 
-# The meanest fizzBuzz test ever (If you ever ask me FizzBuzz for a job interview, I WILL WALK OUT OF IT) :
+# The meanest fizzBuzz test ever (please stop asking me this in interviews...)
 ```
 (%%   
     (function isFizz num 
