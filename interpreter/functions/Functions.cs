@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 
 namespace GMinusMinus.interpreter.functions
@@ -827,6 +828,24 @@ namespace GMinusMinus.interpreter.functions
             Context.AddFunctionToLocalContext(funcName, (context) => new CustomFunc(context, funcName + " (lambda)", codeBody, codeBodyContext));
             
             return new Value(funcName, Types.Name);
+        }
+    }
+
+    internal class Execute : InterpreterFunc
+    {
+        public override int MinArgs => 1;
+        public override int MaxArgs => 1;
+
+        public Execute(ExprContext context) : base(context)
+        {
+        }
+        
+        protected override Value ExecuteImpl()
+        {
+            var fileName = Context.Arguments.First().Execute().Val.Replace("\"", "");
+            var gMinusInterpreter = new GMinusInterpreter();
+            gMinusInterpreter.Eval(File.ReadAllText(fileName));
+            return Value.Yes();
         }
     }
 }

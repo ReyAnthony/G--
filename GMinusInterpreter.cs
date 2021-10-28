@@ -44,7 +44,8 @@ namespace GMinusMinus
                 {"random", e => new Random(e)},  
                 {"function", e => new DefineFunction(e)},
                 {"apply", e => new Apply(e)},
-                {"lambda", e => new DefineLambdaFunction(e)}
+                {"lambda", e => new DefineLambdaFunction(e)},
+                {"execute", e => new Execute(e)}
             };
 
             if (functions != null)

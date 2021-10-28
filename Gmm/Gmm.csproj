@@ -40,6 +40,7 @@
   <ItemGroup>
     <Content Include="scripts\factorielle.lisp" />
     <Content Include="scripts\fizzBuzz.lisp" />
+    <Content Include="scripts\imports.lisp" />
     <Content Include="scripts\lambda.lisp" />
     <Content Include="scripts\moreOrLess.lisp" />
     <Content Include="scripts\recursion.lisp" />
