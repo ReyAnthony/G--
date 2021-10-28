@@ -274,6 +274,7 @@ namespace GMinusMinus.interpreter.functions
                 }
                 
                 if (argument.Type != Types.String && 
+                    argument.Type != Types.Name && 
                     argument.Type != Types.Int && 
                     argument.Type != Types.FloatingPoint)
                 {
@@ -788,8 +789,44 @@ namespace GMinusMinus.interpreter.functions
             
             var functionName = Context.Arguments.First().Execute().Val;
             var func = Context.RetrieveFunctionFromLocalContext(functionName);
-            return func(new ExprContext(functionName, Context)).Execute();
+            
+            var newContext = new ExprContext(functionName, Context);
+            newContext.Arguments.AddRange(Context.Arguments);
+            newContext.Arguments.RemoveAt(0);
+            return func(newContext).Execute();
         }
     }
+    
+    
+    internal class DefineLambdaFunction : InterpreterFunc
+    {
+        public override int MinArgs
+        {
+            get { return 1; }
+        }
 
+        public override int MaxArgs
+        {
+            get { return Int32.MaxValue; }
+        }
+        
+        public DefineLambdaFunction(ExprContext context) : base(context)
+        {
+        }
+
+        protected override Value ExecuteImpl()
+        {
+            if (Context.Arguments.Count < 1)
+                throw new WrongArgumentCount(Context.FunctionName, 1);
+            
+            var codeBody = Context.Arguments.Last();
+            Context.Arguments.Remove(codeBody);
+
+            var codeBodyContext = Context;
+            var funcName = Guid.NewGuid().ToString();
+            Context.AddFunctionToLocalContext(funcName, (context) => new CustomFunc(context, funcName + " (lambda)", codeBody, codeBodyContext));
+            
+            return new Value(funcName, Types.Name);
+        }
+    }
 }

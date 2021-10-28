@@ -43,7 +43,8 @@ namespace GMinusMinus
                 {"read", e => new Read(e)},
                 {"random", e => new Random(e)},  
                 {"function", e => new DefineFunction(e)},
-                {"apply", e => new Apply(e)}
+                {"apply", e => new Apply(e)},
+                {"lambda", e => new DefineLambdaFunction(e)}
             };
 
             if (functions != null)
