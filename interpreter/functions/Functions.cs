@@ -7,16 +7,9 @@ namespace GMinusMinus.interpreter.functions
 {
     internal class Add : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public Add(ExprContext context) : base(context)
         {}
 
@@ -44,15 +37,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Sub : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
         public Sub(ExprContext context) : base(context)
         {
         }
@@ -89,16 +76,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Div : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public Div(ExprContext context) : base(context)
         {
         }
@@ -134,16 +114,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Mod : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public Mod(ExprContext context) : base(context)
         {
         }
@@ -179,16 +152,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Mult : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public Mult(ExprContext context) : base(context)
         {
         }
@@ -224,16 +190,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class StatementsGroup : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public StatementsGroup(ExprContext context) : base(context)
         {
         }
@@ -247,16 +206,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Print : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public Print(ExprContext context) : base(context)
         {
         }
@@ -295,16 +247,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Read : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 0; }
-        }
+        public override int MinArgs => 0;
+        public override int MaxArgs => 0;
 
-        public override int MaxArgs
-        {
-            get { return 0; }
-        }
-        
         public Read(ExprContext context) : base(context)
         {
         }
@@ -323,16 +268,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class TypeOf : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => 1;
 
-        public override int MaxArgs
-        {
-            get { return 1; }
-        }
-        
         public TypeOf(ExprContext context) : base(context)
         {
         }
@@ -345,16 +283,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Eq : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public Eq(ExprContext context) : base(context)
         {
         }
@@ -369,16 +300,9 @@ namespace GMinusMinus.interpreter.functions
     internal class Less : InterpreterFunc
      {
          
-         public override int MinArgs
-         {
-             get { return 2; }
-         }
+         public override int MinArgs => 2;
+         public override int MaxArgs => 2;
 
-         public override int MaxArgs
-         {
-             get { return 2; }
-         }
-         
          public Less(ExprContext context) : base(context)
          {
          }
@@ -405,16 +329,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class More : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public More(ExprContext context) : base(context)
         {
         }
@@ -442,16 +359,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Not : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => 1;
 
-        public override int MaxArgs
-        {
-            get { return 1; }
-        }
-        
         public Not(ExprContext context) : base(context)
         {
         }
@@ -464,16 +374,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class And : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public And(ExprContext context) : base(context)
         {
         }
@@ -493,16 +396,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Or : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public Or(ExprContext context) : base(context)
         {
         }
@@ -522,16 +418,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class When : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public When(ExprContext context) : base(context)
         {
         }
@@ -546,16 +435,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class If : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 3; }
-        }
+        public override int MinArgs => 3;
+        public override int MaxArgs => 3;
 
-        public override int MaxArgs
-        {
-            get { return 3; }
-        }
-        
         public If(ExprContext context) : base(context)
         {
         }
@@ -570,16 +452,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Let : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 3; }
-        }
+        public override int MinArgs => 3;
+        public override int MaxArgs => 3;
 
-        public override int MaxArgs
-        {
-            get { return 3; }
-        }
-        
         public Let(ExprContext context) : base(context)
         {
         }
@@ -600,16 +475,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Set : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public Set(ExprContext context) : base(context)
         {
         }
@@ -631,16 +499,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class Retrieve : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => 1;
 
-        public override int MaxArgs
-        {
-            get { return 1; }
-        }
-        
         public Retrieve(ExprContext context) : base(context)
         {
         }
@@ -657,16 +518,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class DefineFunction : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public DefineFunction(ExprContext context) : base(context)
         {
         }
@@ -695,16 +549,9 @@ namespace GMinusMinus.interpreter.functions
 
     internal class CustomFunc : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 0; }
-        }
+        public override int MinArgs => 0;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         private readonly LazyValue _codeBody;
         private readonly string _functionName;
         public  ExprContext FuncDeclContext { get; private set; }
@@ -735,16 +582,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Random : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 2; }
-        }
+        public override int MinArgs => 2;
+        public override int MaxArgs => 2;
 
-        public override int MaxArgs
-        {
-            get { return 2; }
-        }
-        
         public Random(ExprContext context) : base(context)
         {
         }
@@ -769,16 +609,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class Apply : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public Apply(ExprContext context) : base(context)
         {
         }
@@ -801,16 +634,9 @@ namespace GMinusMinus.interpreter.functions
     
     internal class DefineLambdaFunction : InterpreterFunc
     {
-        public override int MinArgs
-        {
-            get { return 1; }
-        }
+        public override int MinArgs => 1;
+        public override int MaxArgs => Int32.MaxValue;
 
-        public override int MaxArgs
-        {
-            get { return Int32.MaxValue; }
-        }
-        
         public DefineLambdaFunction(ExprContext context) : base(context)
         {
         }
