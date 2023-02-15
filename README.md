@@ -1,6 +1,6 @@
 # G--
 Craft an interpreter using s-exp but with a C-like way of things (aka, writing grammars is hard when not using s-exp)
-The goal was not to write a "real" Lisp
+The goal was not to write a "real" Lisp (The 'G' stands for Garbage anyway)
 
 The interpreter has 1 main problem : 
 - It kinda handles everything as Strings .. 
